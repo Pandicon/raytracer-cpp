@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 
+#include "Scene.hpp"
+#include "Sphere.hpp"
+
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
@@ -27,6 +30,10 @@ int main(int argc, char *argv[])
 
     uint32_t gradient_offset = 0;
 
+    Scene scene = Scene();
+    Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0);
+    scene.add_object(std::make_unique<Sphere>(sphere));
+
     while (is_running)
     {
         while (SDL_PollEvent(&event))
@@ -44,17 +51,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        gradient_offset += 1;
-        for (int y = 0; y < HEIGHT; ++y)
-        {
-            for (int x = 0; x < WIDTH; ++x)
-            {
-                uint8_t r = (x + gradient_offset) % 256;
-                uint8_t g = (y + gradient_offset) % 256;
-                uint8_t b = 128;
-                pixels[y * WIDTH + x] = (255 << 24) | (r << 16) | (g << 8) | b;
-            }
-        }
+        scene.render(pixels, WIDTH, HEIGHT);
 
         SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
 
