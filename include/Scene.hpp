@@ -13,7 +13,7 @@ private:
 public:
     Scene() = default;
     Scene(std::vector<std::unique_ptr<Hittable>> objects);
-    void render(std::vector<uint32_t> &pixels, uint32_t width, uint32_t height);
+    void render(std::vector<Colour> &pixels, uint32_t width, uint32_t height);
 
     void add_object(std::unique_ptr<Hittable> object);
 };

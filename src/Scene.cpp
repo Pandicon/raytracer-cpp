@@ -1,3 +1,4 @@
+#include "Colour.hpp"
 #include "Scene.hpp"
 
 Scene::Scene(std::vector<std::unique_ptr<Hittable>> objects) : objects_(std::move(objects)) {}
@@ -7,7 +8,7 @@ void Scene::add_object(std::unique_ptr<Hittable> object)
     objects_.push_back(std::move(object));
 }
 
-void Scene::render(std::vector<uint32_t> &pixels, uint32_t width, uint32_t height)
+void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
 {
     double w_d = (double)width;
     double h_d = (double)height;
@@ -33,12 +34,12 @@ void Scene::render(std::vector<uint32_t> &pixels, uint32_t width, uint32_t heigh
 
             if (auto result = closest_hit)
             {
-                uint32_t pixel_colour = 255 << 24 | 130 << 16 | 0 << 8 | 73 << 0;
+                Colour pixel_colour = Colour(130.0, 0.0, 73.0, 255.0);
                 pixels[pixel_index] = pixel_colour;
             }
             else
             {
-                pixels[pixel_index] = 0;
+                pixels[pixel_index] = Colour(0.0, 0.0, 0.0, 255.0);
             }
         }
     }

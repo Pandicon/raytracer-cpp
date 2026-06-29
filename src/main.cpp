@@ -1,8 +1,10 @@
 #include <iostream>
+#include <ranges>
 #include <vector>
 
 #include <SDL2/SDL.h>
 
+#include "Colour.hpp"
 #include "Scene.hpp"
 #include "Sphere.hpp"
 
@@ -23,17 +25,15 @@ int main(int argc, char *argv[])
 
     SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
-    std::vector<uint32_t> pixels(WIDTH * HEIGHT, 0);
-
     bool is_running = true;
     SDL_Event event;
-
-    uint32_t gradient_offset = 0;
 
     Scene scene = Scene();
     Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0);
     scene.add_object(std::make_unique<Sphere>(sphere));
 
+    double frames_accumulated = 0;
+    std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     while (is_running)
     {
         while (SDL_PollEvent(&event))
@@ -51,9 +51,20 @@ int main(int argc, char *argv[])
             }
         }
 
-        scene.render(pixels, WIDTH, HEIGHT);
+        frames_accumulated += 1.0;
 
-        SDL_UpdateTexture(texture, nullptr, pixels.data(), WIDTH * sizeof(uint32_t));
+        std::vector<Colour> pixels(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
+        scene.render(pixels, WIDTH, HEIGHT);
+        for (int i = 0; i < pixels.size(); i += 1)
+        {
+            accumulated_image[i] = accumulated_image[i] * ((frames_accumulated - 1.0) / (frames_accumulated)) + pixels[i] * (1.0 / frames_accumulated);
+        }
+
+        std::vector<uint32_t> accumulated_pixels = accumulated_image | std::views::transform([](Colour c)
+                                                                                             { return c.pack(); }) |
+                                                   std::ranges::to<std::vector>();
+
+        SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, nullptr, nullptr);

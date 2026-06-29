@@ -23,6 +23,11 @@ public:
         return Vec3(n * x, n * y, n * z);
     }
 
+    inline Vec3 operator/(double n) const
+    {
+        return Vec3(n / x, n / y, n / z);
+    }
+
     inline double dot(const Vec3 &other) const
     {
         return x * other.x + y * other.y + z * other.z;
