@@ -1,0 +1,6 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    "cmake.cmakePath": "C:/Program Files/CMake/bin/cmake.exe"
+}
