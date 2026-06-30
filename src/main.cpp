@@ -7,7 +7,7 @@
 
 #include "Colour.hpp"
 #include "materials/Light.hpp"
-#include "materials/Mirror.hpp"
+#include "materials/Diffuse.hpp"
 #include "Scene.hpp"
 #include "Sphere.hpp"
 
@@ -33,12 +33,12 @@ int main(int argc, char *argv[])
 
     Scene scene = Scene();
     {
-        std::shared_ptr<Mirror> mirror_material = std::make_shared<Mirror>(Colour::fromRGBA(255, 255, 255, 255));
-        Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0, mirror_material);
+        std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
+        Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0, diffuse_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
     }
     {
-        std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(13, 120, 73, 255), 1.0);
+        std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(13, 120, 73, 255), 100.0);
         Sphere sphere = Sphere(Vec3(0.0, 3.0, -8.0), 1.0, light_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
     }

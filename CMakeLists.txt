@@ -6,14 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-
 add_executable(
     Raytracer
     src/main.cpp
-    src/Sphere.cpp
     src/Scene.cpp
-    src/RandomUtils.cpp
+    src/Sphere.cpp
+    src/materials/Diffuse.cpp
+    src/materials/Light.cpp
+    src/materials/Mirror.cpp
 )
 
 target_include_directories(Raytracer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
