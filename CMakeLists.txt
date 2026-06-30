@@ -8,7 +8,13 @@ find_package(SDL2 CONFIG REQUIRED)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-add_executable(Raytracer ${SOURCES})
+add_executable(
+    Raytracer
+    src/main.cpp
+    src/Sphere.cpp
+    src/Scene.cpp
+    src/RandomUtils.cpp
+)
 
 target_include_directories(Raytracer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 

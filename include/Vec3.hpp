@@ -1,5 +1,12 @@
 #pragma once
 
+#include <cmath>
+#include <numbers>
+
+#include <iostream>
+
+#include "RandomUtils.hpp"
+
 struct Vec3
 {
 public:
@@ -48,5 +55,25 @@ public:
     inline Vec3 reflect(const Vec3 &normal) const
     {
         return *this - (normal * (normal.dot(*this) * 2.0));
+    }
+
+    static Vec3 random_unit_vector()
+    {
+        double z = get_random_double(-1.0, 1.0);
+        double r_at_altitude = std::sqrt(1.0 - z * z);
+        double lambda = get_random_double(0.0, 1.0) * 2.0 * std::numbers::pi_v<double>;
+        double x = std::cos(lambda) * r_at_altitude;
+        double y = std::sin(lambda) * r_at_altitude;
+        return Vec3(x, y, z);
+    }
+
+    Vec3 random_vector_in_hemisphere_around() const
+    {
+        Vec3 random_vec = Vec3::random_unit_vector();
+        if (random_vec.dot(*this) < 0.0)
+        {
+            return random_vec * (-1.0);
+        }
+        return random_vec;
     }
 };
