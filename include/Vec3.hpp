@@ -3,8 +3,6 @@
 #include <cmath>
 #include <numbers>
 
-#include <iostream>
-
 #include "RandomUtils.hpp"
 
 struct Vec3
