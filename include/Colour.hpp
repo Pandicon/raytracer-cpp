@@ -1,5 +1,6 @@
 #pragma once
-#include <cstdint>
+
+#include <algorithm>
 
 struct Colour
 {
@@ -42,6 +43,15 @@ struct Colour
 
     inline uint32_t pack() const
     {
-        return ((uint8_t)(a * 255.0)) << 24 | ((uint8_t)(r * 255.0)) << 16 | ((uint8_t)(g * 255.0)) << 8 | ((uint8_t)(b * 255.0)) << 0;
+        double a_ = std::min(std::max(a, 0.0), 1.0);
+        double r_ = std::min(std::max(r, 0.0), 1.0);
+        double g_ = std::min(std::max(g, 0.0), 1.0);
+        double b_ = std::min(std::max(b, 0.0), 1.0);
+
+        uint8_t final_a = static_cast<uint8_t>(a_ * 255.999);
+        uint8_t final_r = static_cast<uint8_t>(r_ * 255.999);
+        uint8_t final_g = static_cast<uint8_t>(g_ * 255.999);
+        uint8_t final_b = static_cast<uint8_t>(b_ * 255.999);
+        return final_a << 24 | final_r << 16 | final_g << 8 | final_b << 0;
     };
 };
