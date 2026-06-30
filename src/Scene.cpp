@@ -45,7 +45,7 @@ void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
                 {
                     Colour colour_contribution = closest_hit->hit_object.get().colour_contribution(ray);
                     accumulated_colour = accumulated_colour * colour_contribution;
-                    ray_opt = closest_hit->hit_object.get().scatter(ray);
+                    ray_opt = closest_hit->hit_object.get().scatter(ray, closest_hit->point, closest_hit->normal);
                     bounces += 1;
                 }
                 else

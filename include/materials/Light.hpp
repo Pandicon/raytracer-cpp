@@ -12,7 +12,7 @@ private:
 public:
     Light(Colour colour, double intensity) : colour_(colour), intensity_(intensity) {}
 
-    std::optional<Ray> scatter(const Ray &_ray) const override
+    std::optional<Ray> scatter(const Ray &_ray, const Vec3 &_hit_point, const Vec3 &_normal) const override
     {
         // The ray hit a light source, it should not continue
         return std::nullopt;

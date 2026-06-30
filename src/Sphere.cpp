@@ -39,9 +39,9 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
     }
 }
 
-std::optional<Ray> Sphere::scatter(const Ray &ray) const
+std::optional<Ray> Sphere::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const
 {
-    return material_->scatter(ray);
+    return material_->scatter(ray, hit_point, normal);
 };
 
 Colour Sphere::colour_contribution(const Ray &ray) const

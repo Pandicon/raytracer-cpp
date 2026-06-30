@@ -25,7 +25,7 @@ public:
 
     inline Vec3 operator/(double n) const
     {
-        return Vec3(n / x, n / y, n / z);
+        return Vec3(x / n, y / n, z / n);
     }
 
     inline double dot(const Vec3 &other) const
@@ -42,5 +42,11 @@ public:
     {
         double length = this->length();
         return Vec3(x / length, y / length, z / length);
+    }
+
+    // Takes in a normalised normal to the plane the current vector hits and reflects the incoming vector in this plane
+    inline Vec3 reflect(const Vec3 &normal) const
+    {
+        return *this - (normal * (normal.dot(*this) * 2.0));
     }
 };
