@@ -19,6 +19,11 @@ struct Colour
         return Colour(r + other.r, g + other.g, b + other.b, a + other.a);
     }
 
+    inline Colour operator*(Colour other)
+    {
+        return Colour(r * other.r, g * other.g, b * other.b, a * other.a);
+    }
+
     inline Colour operator*(double n)
     {
         return Colour(r * n, g * n, b * n, a * n);
