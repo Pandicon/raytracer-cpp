@@ -34,12 +34,12 @@ void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
 
             if (auto result = closest_hit)
             {
-                Colour pixel_colour = Colour(130.0, 0.0, 73.0, 255.0);
+                Colour pixel_colour = Colour::fromRGBA(130, 0, 73, 255);
                 pixels[pixel_index] = pixel_colour;
             }
             else
             {
-                pixels[pixel_index] = Colour(0.0, 0.0, 0.0, 255.0);
+                pixels[pixel_index] = Colour(0.0, 0.0, 0.0, 1.0);
             }
         }
     }
