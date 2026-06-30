@@ -1,10 +1,12 @@
 #include <iostream>
+#include <memory>
 #include <ranges>
 #include <vector>
 
 #include <SDL2/SDL.h>
 
 #include "Colour.hpp"
+#include "materials/Light.hpp"
 #include "Scene.hpp"
 #include "Sphere.hpp"
 
@@ -29,7 +31,8 @@ int main(int argc, char *argv[])
     SDL_Event event;
 
     Scene scene = Scene();
-    Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0);
+    std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(170, 0, 73, 255), 1.0);
+    Sphere sphere = Sphere(Vec3(0.0, 0.0, 5.0), 2.0, light_material);
     scene.add_object(std::make_unique<Sphere>(sphere));
 
     double frames_accumulated = 0;

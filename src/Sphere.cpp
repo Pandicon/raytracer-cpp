@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
 
-Sphere::Sphere(Vec3 centre, float radius) : centre_(centre), radius_(radius) {}
+Sphere::Sphere(Vec3 centre, float radius, std::shared_ptr<Material> material) : centre_(centre), radius_(radius), material_(material) {}
 
 std::optional<HitRecord> Sphere::hit(const Ray &ray) const
 {
@@ -38,3 +38,13 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
         return std::nullopt;
     }
 }
+
+std::optional<Ray> Sphere::scatter(const Ray &ray) const
+{
+    return material_->scatter(ray);
+};
+
+Colour Sphere::colour_contribution(const Ray &ray) const
+{
+    return material_->colour_contribution(ray);
+};

@@ -2,15 +2,13 @@
 #include <optional>
 
 #include "Colour.hpp"
-#include "HitRecord.hpp"
 #include "Ray.hpp"
 
-class Hittable
+class Material
 {
 public:
-    virtual ~Hittable() = default;
+    virtual ~Material() = default;
 
-    virtual std::optional<HitRecord> hit(const Ray &ray) const = 0;
     virtual std::optional<Ray> scatter(const Ray &ray) const = 0;
     virtual Colour colour_contribution(const Ray &ray) const = 0;
 };

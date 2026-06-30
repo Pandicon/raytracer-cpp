@@ -1,6 +1,9 @@
 #include "Colour.hpp"
 #include "Scene.hpp"
 
+const double MINIMUM_T = 0.0001;
+const int MAX_BOUNCES = 10;
+
 Scene::Scene(std::vector<std::unique_ptr<Hittable>> objects) : objects_(std::move(objects)) {}
 
 void Scene::add_object(std::unique_ptr<Hittable> object)
@@ -17,30 +20,45 @@ void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
         for (uint32_t y = 0; y < height; y += 1)
         {
             uint32_t pixel_index = y * width + x;
-            double closest_t = std::numeric_limits<double>::max();
-            std::optional<HitRecord> closest_hit = {};
             Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((double(x) - w_d / 2.0) / h_d, (height / 2.0 - (double)y) / h_d, 1.0).normalise());
-            for (const auto &object : objects_)
+            std::optional<Ray> ray_opt = ray;
+            int bounces = 0;
+            Colour accumulated_colour = Colour::white();
+            while (ray_opt && bounces <= MAX_BOUNCES)
             {
-                if (auto result = object->hit(ray))
+                Ray ray = *ray_opt;
+                double closest_t = std::numeric_limits<double>::max();
+                std::optional<HitRecord> closest_hit = {};
+                for (const auto &object : objects_)
                 {
-                    if (result->t < closest_t)
+                    if (auto result = object->hit(ray))
                     {
-                        closest_t = result->t;
-                        closest_hit = result;
+                        if (result->t > MINIMUM_T && result->t < closest_t)
+                        {
+                            closest_t = result->t;
+                            closest_hit = result;
+                        }
                     }
                 }
-            }
 
-            if (auto result = closest_hit)
-            {
-                Colour pixel_colour = Colour::fromRGBA(130, 0, 73, 255);
-                pixels[pixel_index] = pixel_colour;
+                if (closest_hit)
+                {
+                    Colour colour_contribution = closest_hit->hit_object.get().colour_contribution(ray);
+                    accumulated_colour = accumulated_colour * colour_contribution;
+                    ray_opt = closest_hit->hit_object.get().scatter(ray);
+                    bounces += 1;
+                }
+                else
+                {
+                    accumulated_colour = Colour(0.0, 0.0, 0.0, 1.0);
+                    ray_opt = std::nullopt;
+                }
             }
-            else
+            if (bounces > MAX_BOUNCES)
             {
-                pixels[pixel_index] = Colour(0.0, 0.0, 0.0, 1.0);
+                accumulated_colour = Colour(0.0, 0.0, 0.0, 1.0);
             }
+            pixels[pixel_index] = accumulated_colour;
         }
     }
 }
