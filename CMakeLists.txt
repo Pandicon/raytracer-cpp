@@ -13,6 +13,7 @@ add_executable(
     src/Sphere.cpp
     src/materials/Diffuse.cpp
     src/materials/Light.cpp
+    src/materials/Metal.cpp
     src/materials/Mirror.cpp
 )
 
