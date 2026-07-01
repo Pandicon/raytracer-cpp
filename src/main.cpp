@@ -14,6 +14,8 @@
 #include "Scene.hpp"
 #include "Sphere.hpp"
 
+#include "save_to_image.hpp"
+
 const int WIDTH = 800;
 const int HEIGHT = 800;
 
@@ -95,8 +97,10 @@ int main(int argc, char *argv[])
 
     double frames_accumulated = 0;
     std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
+    double last_frame = (double)SDL_GetTicks64();
     while (is_running)
     {
+        double this_frame = (double)SDL_GetTicks64();
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
@@ -105,9 +109,22 @@ int main(int argc, char *argv[])
             }
             if (event.type == SDL_KEYDOWN)
             {
-                if (event.key.keysym.sym == SDLK_ESCAPE)
+                switch (event.key.keysym.sym)
                 {
+                case SDLK_ESCAPE:
                     is_running = false;
+                    break;
+
+                case SDLK_s:
+                {
+                    std::vector<uint32_t> accumulated_pixels =
+                        apply_tonemapping_and_pack(accumulated_image);
+                    save_texture(accumulated_pixels, WIDTH, HEIGHT);
+                    break;
+                }
+
+                default:
+                    break;
                 }
             }
         }
@@ -123,11 +140,14 @@ int main(int argc, char *argv[])
 
         std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image);
 
+        std::cout << 1000.0 / (this_frame - last_frame) << " FPS" << std::endl;
+
         SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
+        last_frame = this_frame;
     }
 
     SDL_DestroyTexture(texture);

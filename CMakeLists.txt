@@ -8,6 +8,7 @@ find_package(SDL2 CONFIG REQUIRED)
 
 add_executable(
     Raytracer
+    src/save_to_image.cpp
     src/main.cpp
     src/Quadrilateral.cpp
     src/Scene.cpp
