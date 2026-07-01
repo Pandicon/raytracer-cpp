@@ -16,6 +16,8 @@
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image);
+
 int main(int argc, char *argv[])
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -60,7 +62,7 @@ int main(int argc, char *argv[])
         scene.add_object(std::make_unique<Sphere>(sphere));
     }
     {
-        std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(13, 120, 73, 255), 1.0);
+        std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(13, 120, 73, 255), 2.0);
         Sphere sphere = Sphere(Vec3(0.0, 0.0, -1.0), 0.75, light_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
     }
@@ -93,9 +95,7 @@ int main(int argc, char *argv[])
             accumulated_image[i] = accumulated_image[i] * ((frames_accumulated - 1.0) / (frames_accumulated)) + pixels[i] * (1.0 / frames_accumulated);
         }
 
-        std::vector<uint32_t> accumulated_pixels = accumulated_image | std::views::transform([](Colour c)
-                                                                                             { return c.pack(); }) |
-                                                   std::ranges::to<std::vector>();
+        std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image);
 
         SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
 
@@ -110,4 +110,16 @@ int main(int argc, char *argv[])
     SDL_Quit();
 
     return 0;
+}
+
+const double GAMMA = 2.2;
+
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image)
+{
+    return accumulated_image | std::views::transform([](Colour c)
+                                                     {
+                                                const Colour tonemapped = Colour(c.r / (c.r + 1.0), c.g / (c.g + 1.0), c.b / (c.b + 1.0), c.a);
+                                                const Colour gamma_corrected = Colour(std::pow(tonemapped.r, 1.0 / GAMMA), std::pow(tonemapped.g, 1.0 / GAMMA), std::pow(tonemapped.b, 1.0 / GAMMA), tonemapped.a);
+                                                return gamma_corrected.pack(); }) |
+           std::ranges::to<std::vector>();
 }
