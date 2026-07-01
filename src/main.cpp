@@ -37,31 +37,31 @@ int main(int argc, char *argv[])
     SDL_Event event;
 
     Scene scene = Scene();
-    /*{
+    {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
-        Sphere sphere = Sphere(Vec3(0.0, 0.0, 2.0), 0.1, diffuse_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
-    }
-    {
-        std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.0);
-        Sphere sphere = Sphere(Vec3(0.5, 0.0, 2.0), 0.1, metal_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
-    }
-    {
-        std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.5);
-        Sphere sphere = Sphere(Vec3(1.0, 0.0, 2.0), 0.1, metal_material);
+        Sphere sphere = Sphere(Vec3(-1.6, 0.0, 7.0), 0.3, diffuse_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
     }
     {
         std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 1.0);
-        Sphere sphere = Sphere(Vec3(-0.5, 0.0, 2.0), 0.1, metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, metal_material);
+        scene.add_object(std::make_unique<Sphere>(sphere));
+    }
+    {
+        std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.5);
+        Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, metal_material);
+        scene.add_object(std::make_unique<Sphere>(sphere));
+    }
+    {
+        std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.0);
+        Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, metal_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
     }
     {
         std::shared_ptr<Mirror> mirror_material = std::make_shared<Mirror>(Colour::fromRGBA(255, 255, 255, 255));
-        Sphere sphere = Sphere(Vec3(-1.0, 0.0, 2.0), 0.1, mirror_material);
+        Sphere sphere = Sphere(Vec3(1.6, 0.0, 7.0), 0.3, mirror_material);
         scene.add_object(std::make_unique<Sphere>(sphere));
-    }*/
+    }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(0, 255, 0, 255));
         Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), diffuse_material);
