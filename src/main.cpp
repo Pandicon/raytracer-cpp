@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <ranges>
+#include <thread>
 #include <vector>
 
 #include <SDL2/SDL.h>
@@ -23,6 +24,13 @@ std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accu
 
 int main(int argc, char *argv[])
 {
+    unsigned int num_threads = std::thread::hardware_concurrency();
+    if (num_threads == 0)
+    {
+        num_threads = 2;
+    }
+    std::cout << "Using " << num_threads << " thread(s) for rendering" << std::endl;
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -132,7 +140,7 @@ int main(int argc, char *argv[])
         frames_accumulated += 1.0;
 
         std::vector<Colour> pixels(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
-        scene.render(pixels, WIDTH, HEIGHT);
+        scene.render(pixels, WIDTH, HEIGHT, num_threads);
         for (int i = 0; i < pixels.size(); i += 1)
         {
             accumulated_image[i] = accumulated_image[i] * ((frames_accumulated - 1.0) / (frames_accumulated)) + pixels[i] * (1.0 / frames_accumulated);
