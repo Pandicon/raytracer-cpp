@@ -5,6 +5,8 @@
 
 #include "RandomUtils.hpp"
 
+const double ZERO_TOLERANCE = 0.001;
+
 struct Vec3
 {
 public:
@@ -43,6 +45,11 @@ public:
         return std::sqrt(x * x + y * y + z * z);
     }
 
+    inline double length_squared() const
+    {
+        return x * x + y * y + z * z;
+    }
+
     inline Vec3 normalise() const
     {
         double length = this->length();
@@ -73,5 +80,10 @@ public:
             return random_vec * (-1.0);
         }
         return random_vec;
+    }
+
+    inline bool is_close_to_zero() const
+    {
+        return this->length_squared() < ZERO_TOLERANCE * ZERO_TOLERANCE;
     }
 };
