@@ -9,6 +9,7 @@ find_package(SDL2 CONFIG REQUIRED)
 add_executable(
     Raytracer
     src/main.cpp
+    src/Quadrilateral.cpp
     src/Scene.cpp
     src/Sphere.cpp
     src/materials/Diffuse.cpp
