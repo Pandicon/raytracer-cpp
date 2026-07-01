@@ -23,7 +23,8 @@ void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
             Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((double(x) - w_d / 2.0) / h_d, (height / 2.0 - (double)y) / h_d, 1.0).normalise());
             std::optional<Ray> ray_opt = ray;
             int bounces = 0;
-            Colour accumulated_colour = Colour::white();
+            Colour final_pixel_colour = Colour(0.0, 0.0, 0.0, 1.0); // Needs to be gathered by hitting lights
+            Colour ray_colour = Colour::white();                    // What is currently being carried around, gets lost at bounces
             while (ray_opt && bounces <= MAX_BOUNCES)
             {
                 Ray ray = *ray_opt;
@@ -43,22 +44,21 @@ void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height)
 
                 if (closest_hit)
                 {
-                    Colour colour_contribution = closest_hit->hit_object.get().colour_contribution(ray);
-                    accumulated_colour = accumulated_colour * colour_contribution;
+                    Colour emitted = closest_hit->hit_object.get().emitted(ray);
+                    final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+
+                    Colour colour_albedo = closest_hit->hit_object.get().colour_contribution(ray);
+                    ray_colour = ray_colour * colour_albedo;
+
                     ray_opt = closest_hit->hit_object.get().scatter(ray, closest_hit->point, closest_hit->normal);
                     bounces += 1;
                 }
                 else
                 {
-                    accumulated_colour = Colour(0.0, 0.0, 0.0, 1.0);
                     ray_opt = std::nullopt;
                 }
             }
-            if (bounces > MAX_BOUNCES)
-            {
-                accumulated_colour = Colour(0.0, 0.0, 0.0, 1.0);
-            }
-            pixels[pixel_index] = accumulated_colour;
+            pixels[pixel_index] = final_pixel_colour;
         }
     }
 }

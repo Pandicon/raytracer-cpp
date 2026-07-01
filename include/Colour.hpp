@@ -16,6 +16,11 @@ struct Colour
         return Colour(((double)r_) / 255.0, ((double)g_) / 255.0, ((double)b_) / 255.0, ((double)a_) / 255.0);
     }
 
+    static Colour black()
+    {
+        return Colour(0.0, 0.0, 0.0, 1.0);
+    }
+
     static Colour white()
     {
         return Colour(1.0, 1.0, 1.0, 1.0);

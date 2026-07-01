@@ -48,3 +48,8 @@ Colour Sphere::colour_contribution(const Ray &ray) const
 {
     return material_->colour_contribution(ray);
 };
+
+Colour Sphere::emitted(const Ray &ray) const
+{
+    return material_->emitted(ray);
+};

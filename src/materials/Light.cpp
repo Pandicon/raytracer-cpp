@@ -10,5 +10,10 @@ std::optional<Ray> Light::scatter(const Ray &_ray, const Vec3 &_hit_point, const
 
 Colour Light::colour_contribution(const Ray &_ray) const
 {
+    return Colour::white();
+};
+
+Colour Light::emitted(const Ray &_ray) const
+{
     return colour_ * intensity_;
 };

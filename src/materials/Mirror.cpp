@@ -13,3 +13,8 @@ Colour Mirror::colour_contribution(const Ray &_ray) const
 {
     return colour_;
 };
+
+Colour Mirror::emitted(const Ray &_ray) const
+{
+    return Colour::black();
+};
