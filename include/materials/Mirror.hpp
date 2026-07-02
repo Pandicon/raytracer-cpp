@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Colour.hpp"
-#include "Material.hpp"
+#include <optional>
 
-class Mirror : public Material
+#include "Colour.hpp"
+#include "Ray.hpp"
+#include "Vec3.hpp"
+
+class Mirror
 {
 private:
     Colour colour_;
@@ -11,9 +14,9 @@ private:
 public:
     Mirror(Colour colour);
 
-    std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const override;
+    std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const;
 
-    Colour colour_contribution(const Ray &_ray) const override;
+    Colour colour_contribution(const Ray &_ray) const;
 
-    Colour emitted(const Ray &_ray) const override;
+    Colour emitted(const Ray &_ray) const;
 };

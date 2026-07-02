@@ -97,14 +97,16 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                         if (closest_hit)
                         {
                             const Material *hit_material = closest_hit->material;
-                            Colour emitted = hit_material->emitted(ray);
-                            final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+                            std::visit([&](const auto &concrete_material)
+                                       {
+                                Colour emitted = concrete_material.emitted(ray);
+                                final_pixel_colour = final_pixel_colour + ray_colour * emitted;
 
-                            Colour colour_albedo = hit_material->colour_contribution(ray);
-                            ray_colour = ray_colour * colour_albedo;
+                                Colour colour_albedo = concrete_material.colour_contribution(ray);
+                                ray_colour = ray_colour * colour_albedo;
 
-                            ray_opt = hit_material->scatter(ray, closest_hit->point, closest_hit->normal);
-                            bounces += 1;
+                                ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
+                                bounces += 1; }, *hit_material);
                         }
                         else
                         {

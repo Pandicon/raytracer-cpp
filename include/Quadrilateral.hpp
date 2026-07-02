@@ -18,12 +18,9 @@ private:
     Vec3 normal_;
     double plane_d_;
 
-    std::shared_ptr<Material> material_;
+    Material material_;
 
 public:
-    Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, std::shared_ptr<Material> material);
+    Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, Material material);
     std::optional<HitRecord> hit(const Ray &ray) const;
-    std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const;
-    Colour colour_contribution(const Ray &ray) const;
-    Colour emitted(const Ray &ray) const;
 };

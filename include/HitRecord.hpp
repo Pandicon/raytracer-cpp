@@ -2,9 +2,8 @@
 
 #include <functional>
 
+#include "materials/Material.hpp"
 #include "Vec3.hpp"
-
-class Material;
 
 struct HitRecord
 {

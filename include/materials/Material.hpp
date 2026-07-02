@@ -1,16 +1,15 @@
 #pragma once
+
 #include <optional>
+#include <variant>
 
 #include "Colour.hpp"
 #include "Ray.hpp"
 #include "Vec3.hpp"
 
-class Material
-{
-public:
-    virtual ~Material() = default;
+#include "Diffuse.hpp"
+#include "Light.hpp"
+#include "Metal.hpp"
+#include "Mirror.hpp"
 
-    virtual std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const = 0;
-    virtual Colour colour_contribution(const Ray &ray) const = 0;
-    virtual Colour emitted(const Ray &ray) const = 0;
-};
+using Material = std::variant<Diffuse, Light, Metal, Mirror>;
