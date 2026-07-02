@@ -20,7 +20,7 @@
 const int WIDTH = 800;
 const int HEIGHT = 800;
 
-std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image);
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image, double frames_accumulated);
 
 int main(int argc, char *argv[])
 {
@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
     double frames_accumulated = 0.0;
     std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     double last_frame = (double)SDL_GetTicks64();
+    std::vector<Colour> pixels(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     while (is_running)
     {
         double this_frame = (double)SDL_GetTicks64();
@@ -126,7 +127,7 @@ int main(int argc, char *argv[])
                 case SDLK_s:
                 {
                     std::vector<uint32_t> accumulated_pixels =
-                        apply_tonemapping_and_pack(accumulated_image);
+                        apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
                     save_texture(accumulated_pixels, WIDTH, HEIGHT);
                     break;
                 }
@@ -139,16 +140,15 @@ int main(int argc, char *argv[])
 
         frames_accumulated += 1.0;
 
-        std::vector<Colour> pixels(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
         scene.render(pixels, WIDTH, HEIGHT, num_threads, frames_accumulated);
         for (int i = 0; i < pixels.size(); i += 1)
         {
-            accumulated_image[i] = accumulated_image[i] * ((frames_accumulated - 1.0) / (frames_accumulated)) + pixels[i] * (1.0 / frames_accumulated);
+            accumulated_image[i] = accumulated_image[i] + pixels[i];
         }
 
-        std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image);
+        std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
 
-        std::cout << 1000.0 / (this_frame - last_frame) << " FPS" << std::endl;
+        std::cout << 1000.0 / (this_frame - last_frame) << " FPS (average of " << 1000.0 * frames_accumulated / this_frame << ")" << std::endl;
 
         SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
 
@@ -168,10 +168,11 @@ int main(int argc, char *argv[])
 
 const double GAMMA = 2.2;
 
-std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image)
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image, double frames_accumulated)
 {
-    return accumulated_image | std::views::transform([](Colour c)
+    return accumulated_image | std::views::transform([frames_accumulated](Colour c_accumulated)
                                                      {
+                                                const Colour c = c_accumulated / frames_accumulated;
                                                 const Colour tonemapped = Colour(c.r / (c.r + 1.0), c.g / (c.g + 1.0), c.b / (c.b + 1.0), c.a);
                                                 const Colour gamma_corrected = Colour(std::pow(tonemapped.r, 1.0 / GAMMA), std::pow(tonemapped.g, 1.0 / GAMMA), std::pow(tonemapped.b, 1.0 / GAMMA), tonemapped.a);
                                                 return gamma_corrected.pack(); }) |
