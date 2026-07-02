@@ -2,11 +2,12 @@
 
 #include <memory>
 
-#include "Hittable.hpp"
+#include "Colour.hpp"
+#include "HitRecord.hpp"
 #include "materials/Material.hpp"
 #include "Vec3.hpp"
 
-class Sphere : public Hittable
+class Sphere
 {
 private:
     double radius_;
@@ -15,8 +16,8 @@ private:
 
 public:
     Sphere(Vec3 center, float radius, std::shared_ptr<Material> material);
-    std::optional<HitRecord> hit(const Ray &ray) const override;
-    std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const override;
-    Colour colour_contribution(const Ray &ray) const override;
-    Colour emitted(const Ray &ray) const override;
+    std::optional<HitRecord> hit(const Ray &ray) const;
+    std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const;
+    Colour colour_contribution(const Ray &ray) const;
+    Colour emitted(const Ray &ray) const;
 };

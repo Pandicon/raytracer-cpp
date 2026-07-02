@@ -4,7 +4,7 @@
 
 #include "Vec3.hpp"
 
-class Hittable;
+class Material;
 
 struct HitRecord
 {
@@ -15,5 +15,5 @@ struct HitRecord
     // true if the ray hit the outside of the object, false if it hit the inside
     bool front_face;
 
-    std::reference_wrapper<const Hittable> hit_object;
+    const Material *material;
 };

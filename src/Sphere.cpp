@@ -25,13 +25,13 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
     {
         Vec3 hit_point = ray.point_at(s2);
         Vec3 normal = (hit_point - centre_).normalise();
-        return HitRecord{hit_point, normal, s2, true, *this};
+        return HitRecord{hit_point, normal, s2, true, material_.get()};
     }
     else if (s1 > 0.0)
     {
         Vec3 hit_point = ray.point_at(s1);
         Vec3 outwards_normal = (hit_point - centre_).normalise();
-        return HitRecord{hit_point, outwards_normal * (-1.0), s1, false, *this};
+        return HitRecord{hit_point, outwards_normal * (-1.0), s1, false, material_.get()};
     }
     else
     {

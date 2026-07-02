@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "Colour.hpp"
+#include "Hittable.hpp"
 #include "Scene.hpp"
 
 const double MINIMUM_T = 0.0001;
@@ -15,13 +16,13 @@ const double G = 1.32471795724474602596;
 const double a1 = 1.0 / G;
 const double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects_, double frame_number, double frames_per_loop);
 
-Scene::Scene(std::vector<std::unique_ptr<Hittable>> objects) : objects_(std::move(objects)) {}
+Scene::Scene(std::vector<Hittable> objects) : objects_(objects) {}
 
-void Scene::add_object(std::unique_ptr<Hittable> object)
+void Scene::add_object(const Hittable &object)
 {
-    objects_.push_back(std::move(object));
+    objects_.push_back(object);
 }
 
 void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
@@ -34,7 +35,7 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects_, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -81,25 +82,28 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                         std::optional<HitRecord> closest_hit = {};
                         for (const auto &object : objects_)
                         {
-                            if (auto result = object->hit(ray))
-                            {
-                                if (result->t > MINIMUM_T && result->t < closest_t)
+                            std::visit([&](const auto &concrete_obj)
+                                       {
+                                if (auto result = concrete_obj.hit(ray))
                                 {
-                                    closest_t = result->t;
-                                    closest_hit = result;
-                                }
-                            }
+                                    if (result->t > MINIMUM_T && result->t < closest_t)
+                                    {
+                                        closest_t = result->t;
+                                        closest_hit = result;
+                                    }
+                                } }, object);
                         }
 
                         if (closest_hit)
                         {
-                            Colour emitted = closest_hit->hit_object.get().emitted(ray);
+                            const Material *hit_material = closest_hit->material;
+                            Colour emitted = hit_material->emitted(ray);
                             final_pixel_colour = final_pixel_colour + ray_colour * emitted;
 
-                            Colour colour_albedo = closest_hit->hit_object.get().colour_contribution(ray);
+                            Colour colour_albedo = hit_material->colour_contribution(ray);
                             ray_colour = ray_colour * colour_albedo;
 
-                            ray_opt = closest_hit->hit_object.get().scatter(ray, closest_hit->point, closest_hit->normal);
+                            ray_opt = hit_material->scatter(ray, closest_hit->point, closest_hit->normal);
                             bounces += 1;
                         }
                         else

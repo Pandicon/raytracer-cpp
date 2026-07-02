@@ -50,57 +50,57 @@ int main(int argc, char *argv[])
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
         Sphere sphere = Sphere(Vec3(-1.6, 0.0, 7.0), 0.3, diffuse_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
+        scene.add_object(sphere);
     }
     {
         std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 1.0);
         Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, metal_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
+        scene.add_object(sphere);
     }
     {
         std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.5);
         Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, metal_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
+        scene.add_object(sphere);
     }
     {
         std::shared_ptr<Metal> metal_material = std::make_shared<Metal>(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.0);
         Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, metal_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
+        scene.add_object(sphere);
     }
     {
         std::shared_ptr<Mirror> mirror_material = std::make_shared<Mirror>(Colour::fromRGBA(255, 255, 255, 255));
         Sphere sphere = Sphere(Vec3(1.6, 0.0, 7.0), 0.3, mirror_material);
-        scene.add_object(std::make_unique<Sphere>(sphere));
+        scene.add_object(sphere);
     }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(0, 255, 0, 255));
         Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), diffuse_material);
-        scene.add_object(std::make_unique<Quadrilateral>(right_wall));
+        scene.add_object(right_wall);
     }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 0, 0, 255));
         Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), diffuse_material);
-        scene.add_object(std::make_unique<Quadrilateral>(left_wall));
+        scene.add_object(left_wall);
     }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
         Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), diffuse_material);
-        scene.add_object(std::make_unique<Quadrilateral>(back_wall));
+        scene.add_object(back_wall);
     }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
         Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), diffuse_material);
-        scene.add_object(std::make_unique<Quadrilateral>(bottom_wall));
+        scene.add_object(bottom_wall);
     }
     {
         std::shared_ptr<Diffuse> diffuse_material = std::make_shared<Diffuse>(Colour::fromRGBA(255, 255, 255, 255));
         Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), diffuse_material);
-        scene.add_object(std::make_unique<Quadrilateral>(top_wall));
+        scene.add_object(top_wall);
     }
     {
         std::shared_ptr<Light> light_material = std::make_shared<Light>(Colour::fromRGBA(255, 255, 255, 255), 2.0);
         Quadrilateral top_light = Quadrilateral(Vec3(-0.5, 1.999, 5.5), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0), light_material);
-        scene.add_object(std::make_unique<Quadrilateral>(top_light));
+        scene.add_object(top_light);
     }
 
     double frames_accumulated = 0.0;

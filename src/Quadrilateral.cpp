@@ -39,7 +39,7 @@ std::optional<HitRecord> Quadrilateral::hit(const Ray &ray) const
     {
         return HitRecord{hit_point, normal_ * (-1.0), lambda, false, *this};
     }*/
-    return HitRecord{hit_point, normal_, lambda, true, *this};
+    return HitRecord{hit_point, normal_, lambda, true, material_.get()};
 };
 
 std::optional<Ray> Quadrilateral::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const
