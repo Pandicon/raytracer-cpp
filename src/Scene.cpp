@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <atomic>
+#include <cmath>
 #include <thread>
 
 #include "Colour.hpp"
@@ -10,7 +11,11 @@ const int MAX_BOUNCES = 10;
 
 const uint32_t CHUNK_SIZE = 4;
 
-void run_render_thread(std::vector<Colour> &pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_);
+const double G = 1.32471795724474602596;
+const double a1 = 1.0 / G;
+const double a2 = 1.0 / (G * G);
+
+void run_render_thread(std::vector<Colour> &pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_, double r2_x, double r2_y);
 
 Scene::Scene(std::vector<std::unique_ptr<Hittable>> objects) : objects_(std::move(objects)) {}
 
@@ -19,17 +24,19 @@ void Scene::add_object(std::unique_ptr<Hittable> object)
     objects_.push_back(std::move(object));
 }
 
-void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height, uint32_t n_threads)
+void Scene::render(std::vector<Colour> &pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number)
 {
+    double r2_x = std::fmod(0.5 + a1 * frame_number, 1.0);
+    double r2_y = std::fmod(0.5 + a2 * frame_number, 1.0);
     std::atomic<uint32_t> next_row{0};
     std::vector<std::jthread> threads;
     for (int thread_id = 0; thread_id < n_threads; thread_id += 1)
     {
-        threads.emplace_back(run_render_thread, std::ref(pixels), std::ref(next_row), width, height, std::cref(objects_));
+        threads.emplace_back(run_render_thread, std::ref(pixels), std::ref(next_row), width, height, std::cref(objects_), r2_x, r2_y);
     }
 }
 
-void run_render_thread(std::vector<Colour> &pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_)
+void run_render_thread(std::vector<Colour> &pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<std::unique_ptr<Hittable>> &objects_, double r2_x, double r2_y)
 {
     double w_d = (double)width;
     double h_d = (double)height;
@@ -43,10 +50,12 @@ void run_render_thread(std::vector<Colour> &pixels, std::atomic<uint32_t> &next_
         }
         for (uint32_t y = start_y; y < end_y; y += 1)
         {
+            double y_d = (double)y + r2_y;
             for (uint32_t x = 0; x < width; x += 1)
             {
+                double x_d = (double)x + r2_x;
                 uint32_t pixel_index = y * width + x;
-                Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((double(x) - w_d / 2.0) / h_d, (height / 2.0 - (double)y) / h_d, 1.0).normalise());
+                Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((x_d - w_d / 2.0) / h_d, (height / 2.0 - y_d) / h_d, 1.0).normalise());
                 std::optional<Ray> ray_opt = ray;
                 int bounces = 0;
                 Colour final_pixel_colour = Colour(0.0, 0.0, 0.0, 1.0); // Needs to be gathered by hitting lights

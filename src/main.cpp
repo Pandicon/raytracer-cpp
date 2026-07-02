@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         scene.add_object(std::make_unique<Quadrilateral>(top_light));
     }
 
-    double frames_accumulated = 0;
+    double frames_accumulated = 0.0;
     std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     double last_frame = (double)SDL_GetTicks64();
     while (is_running)
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
         frames_accumulated += 1.0;
 
         std::vector<Colour> pixels(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
-        scene.render(pixels, WIDTH, HEIGHT, num_threads);
+        scene.render(pixels, WIDTH, HEIGHT, num_threads, frames_accumulated);
         for (int i = 0; i < pixels.size(); i += 1)
         {
             accumulated_image[i] = accumulated_image[i] * ((frames_accumulated - 1.0) / (frames_accumulated)) + pixels[i] * (1.0 / frames_accumulated);
