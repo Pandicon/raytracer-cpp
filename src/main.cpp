@@ -49,57 +49,68 @@ int main(int argc, char *argv[])
     Scene scene = Scene();
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
-        Sphere sphere = Sphere(Vec3(-1.6, 0.0, 7.0), 0.3, diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Sphere sphere = Sphere(Vec3(-1.6, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
         Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 1.0);
-        Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, metal_material);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
         Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.5);
-        Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, metal_material);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
         Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.0);
-        Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, metal_material);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
         Mirror mirror_material = Mirror(Colour::fromRGBA(255, 255, 255, 255));
-        Sphere sphere = Sphere(Vec3(1.6, 0.0, 7.0), 0.3, mirror_material);
+        uint32_t material_id = scene.add_material(mirror_material);
+        Sphere sphere = Sphere(Vec3(1.6, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(0, 255, 0, 255));
-        Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), material_id);
         scene.add_object(right_wall);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 0, 0, 255));
-        Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
         scene.add_object(left_wall);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
-        Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), material_id);
         scene.add_object(back_wall);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
-        Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), material_id);
         scene.add_object(bottom_wall);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
-        Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), diffuse_material);
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
         scene.add_object(top_wall);
     }
     {
         Light light_material = Light(Colour::fromRGBA(255, 255, 255, 255), 2.0);
-        Quadrilateral top_light = Quadrilateral(Vec3(-0.5, 1.999, 5.5), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0), light_material);
+        uint32_t material_id = scene.add_material(light_material);
+        Quadrilateral top_light = Quadrilateral(Vec3(-0.5, 1.999, 5.5), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0), material_id);
         scene.add_object(top_light);
     }
 

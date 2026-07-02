@@ -16,13 +16,21 @@ const double G = 1.32471795724474602596;
 const double a1 = 1.0 / G;
 const double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects_, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double frame_number, double frames_per_loop);
 
-Scene::Scene(std::vector<Hittable> objects) : objects_(objects) {}
+Scene::Scene(std::vector<Hittable> objects) : objects_(objects)
+{
+}
 
 void Scene::add_object(const Hittable &object)
 {
     objects_.push_back(object);
+}
+
+uint32_t Scene::add_material(const Material &material)
+{
+    materials_.push_back(material);
+    return materials_.size() - 1;
 }
 
 void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
@@ -31,11 +39,11 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     std::vector<std::jthread> threads;
     for (int thread_id = 0; thread_id < n_threads; thread_id += 1)
     {
-        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), frame_number, frames_per_loop);
+        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), std::cref(materials_), frame_number, frames_per_loop);
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects_, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -80,7 +88,7 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                         Ray ray = *ray_opt;
                         double closest_t = std::numeric_limits<double>::max();
                         std::optional<HitRecord> closest_hit = {};
-                        for (const auto &object : objects_)
+                        for (const auto &object : objects)
                         {
                             std::visit([&](const auto &concrete_obj)
                                        {
@@ -96,7 +104,8 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
 
                         if (closest_hit)
                         {
-                            const Material *hit_material = closest_hit->material;
+                            const uint32_t hit_material_id = closest_hit->material_id_;
+                            const Material &hit_material = materials[hit_material_id];
                             std::visit([&](const auto &concrete_material)
                                        {
                                 Colour emitted = concrete_material.emitted(ray);
@@ -106,7 +115,7 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                 ray_colour = ray_colour * colour_albedo;
 
                                 ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
-                                bounces += 1; }, *hit_material);
+                                bounces += 1; }, hit_material);
                         }
                         else
                         {

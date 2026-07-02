@@ -18,9 +18,9 @@ private:
     Vec3 normal_;
     double plane_d_;
 
-    Material material_;
+    uint32_t material_id_;
 
 public:
-    Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, Material material);
+    Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
 };

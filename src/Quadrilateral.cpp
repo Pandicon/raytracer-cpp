@@ -1,6 +1,6 @@
 #include "Quadrilateral.hpp"
 
-Quadrilateral::Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, Material material) : Q_(Q), u_(u), v_(v), material_(material)
+Quadrilateral::Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id) : Q_(Q), u_(u), v_(v), material_id_(material_id)
 {
     u_norm_ = u.normalise();
     v_norm_ = v.normalise();
@@ -39,5 +39,5 @@ std::optional<HitRecord> Quadrilateral::hit(const Ray &ray) const
     {
         return HitRecord{hit_point, normal_ * (-1.0), lambda, false, *this};
     }*/
-    return HitRecord{hit_point, normal_, lambda, true, &material_};
+    return HitRecord{hit_point, normal_, lambda, true, material_id_};
 };

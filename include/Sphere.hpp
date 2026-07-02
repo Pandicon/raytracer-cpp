@@ -12,9 +12,9 @@ class Sphere
 private:
     double radius_;
     Vec3 centre_;
-    Material material_;
+    uint32_t material_id_;
 
 public:
-    Sphere(Vec3 center, float radius, Material material);
+    Sphere(Vec3 center, float radius, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
 };

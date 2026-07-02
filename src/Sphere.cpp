@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
 
-Sphere::Sphere(Vec3 centre, float radius, Material material) : centre_(centre), radius_(radius), material_(material) {}
+Sphere::Sphere(Vec3 centre, float radius, uint32_t material_id) : centre_(centre), radius_(radius), material_id_(material_id) {}
 
 std::optional<HitRecord> Sphere::hit(const Ray &ray) const
 {
@@ -25,13 +25,13 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
     {
         Vec3 hit_point = ray.point_at(s2);
         Vec3 normal = (hit_point - centre_).normalise();
-        return HitRecord{hit_point, normal, s2, true, &material_};
+        return HitRecord{hit_point, normal, s2, true, material_id_};
     }
     else if (s1 > 0.0)
     {
         Vec3 hit_point = ray.point_at(s1);
         Vec3 outwards_normal = (hit_point - centre_).normalise();
-        return HitRecord{hit_point, outwards_normal * (-1.0), s1, false, &material_};
+        return HitRecord{hit_point, outwards_normal * (-1.0), s1, false, material_id_};
     }
     else
     {
