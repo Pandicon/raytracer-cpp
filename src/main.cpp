@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     bool is_running = true;
     SDL_Event event;
 
-    Scene scene = Scene();
+    Scene scene = Scene(1.0);
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
         uint32_t material_id = scene.add_material(diffuse_material);
@@ -75,6 +75,24 @@ int main(int argc, char *argv[])
         Mirror mirror_material = Mirror(Colour::fromRGBA(255, 255, 255, 255));
         uint32_t material_id = scene.add_material(mirror_material);
         Sphere sphere = Sphere(Vec3(1.6, 0.0, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Dielectric glass_material = Dielectric(Colour::fromRGBA(255, 255, 255, 255), 1.5);
+        uint32_t material_id = scene.add_material(glass_material);
+        Sphere sphere = Sphere(Vec3(0.0, -1.0, 6.0), 0.5, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Dielectric air_material = Dielectric(Colour::fromRGBA(255, 255, 255, 255), 1.0);
+        uint32_t material_id = scene.add_material(air_material);
+        Sphere sphere = Sphere(Vec3(0.0, -1.0, 6.0), 0.4, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Dielectric glass_material = Dielectric(Colour::fromRGBA(255, 255, 255, 255), 1.5);
+        uint32_t material_id = scene.add_material(glass_material);
+        Sphere sphere = Sphere(Vec3(1.2, -1.0, 6.0), 0.5, material_id);
         scene.add_object(sphere);
     }
     {

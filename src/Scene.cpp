@@ -2,10 +2,13 @@
 #include <atomic>
 #include <cmath>
 #include <thread>
+#include <stack>
 
 #include "Colour.hpp"
 #include "Hittable.hpp"
 #include "Scene.hpp"
+
+#include "matching.hpp"
 
 const double MINIMUM_T = 0.0001;
 const int MAX_BOUNCES = 10;
@@ -16,9 +19,13 @@ const double G = 1.32471795724474602596;
 const double a1 = 1.0 / G;
 const double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double void_index_of_refraction, double frame_number, double frames_per_loop);
 
-Scene::Scene(std::vector<Hittable> objects) : objects_(objects)
+Scene::Scene(double void_index_of_refraction) : objects_({}), void_index_of_refraction_(void_index_of_refraction)
+{
+}
+
+Scene::Scene(std::vector<Hittable> objects, double void_index_of_refraction) : objects_(objects), void_index_of_refraction_(void_index_of_refraction)
 {
 }
 
@@ -39,11 +46,11 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     std::vector<std::jthread> threads;
     for (int thread_id = 0; thread_id < n_threads; thread_id += 1)
     {
-        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), std::cref(materials_), frame_number, frames_per_loop);
+        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), std::cref(materials_), void_index_of_refraction_, frame_number, frames_per_loop);
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double void_index_of_refraction, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -72,6 +79,8 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                 Colour pixel_accumulator = Colour::black();
                 for (uint32_t f_i = 0; f_i < frames_per_loop; f_i += 1)
                 {
+                    std::stack<double> indices_of_refraction;
+
                     double r2_x = precomputed_r2_x[f_i];
                     double r2_y = precomputed_r2_y[f_i];
 
@@ -106,16 +115,64 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                         {
                             const uint32_t hit_material_id = closest_hit->material_id_;
                             const Material &hit_material = materials[hit_material_id];
-                            std::visit([&](const auto &concrete_material)
-                                       {
-                                Colour emitted = concrete_material.emitted(ray);
-                                final_pixel_colour = final_pixel_colour + ray_colour * emitted;
 
-                                Colour colour_albedo = concrete_material.colour_contribution(ray);
-                                ray_colour = ray_colour * colour_albedo;
+                            Colour emitted = Colour::black();
+                            Colour colour_albedo = Colour::white();
+                            std::visit(overloaded{[&](const Dielectric &dielectric)
+                                                  {
+                                                      emitted = dielectric.emitted(ray);
+                                                      colour_albedo = dielectric.colour_contribution(ray);
 
-                                ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
-                                bounces += 1; }, hit_material);
+                                                      if (!closest_hit->front_face)
+                                                      {
+                                                          // Leaving the object (but may internally reflect)
+                                                          indices_of_refraction.pop(); // Remove the current index of refraction
+                                                          double n_previous = dielectric.index_of_refraction();
+                                                          double n_next = void_index_of_refraction;
+                                                          if (!indices_of_refraction.empty())
+                                                          {
+                                                              n_next = indices_of_refraction.top();
+                                                          }
+                                                          bool refracted = true;
+                                                          ray_opt = dielectric.scatter(ray, closest_hit->point, closest_hit->normal, n_previous / n_next, refracted);
+                                                          if (!refracted)
+                                                          {
+                                                              // We did not actually leave the medium
+                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                          }
+                                                      }
+                                                      else
+                                                      {
+                                                          // Entering the object (but may reflect)
+                                                          double n_previous = void_index_of_refraction;
+                                                          if (!indices_of_refraction.empty())
+                                                          {
+                                                              n_previous = indices_of_refraction.top();
+                                                          }
+                                                          double n_next = dielectric.index_of_refraction();
+                                                          bool refracted = true;
+                                                          ray_opt = dielectric.scatter(ray, closest_hit->point, closest_hit->normal, n_previous / n_next, refracted);
+                                                          if (refracted)
+                                                          {
+                                                              // We entered the medium
+                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                          }
+                                                      }
+                                                  },
+                                                  [&](const auto &concrete_material)
+                                                  {
+                                                      Colour emitted = concrete_material.emitted(ray);
+                                                      final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+
+                                                      Colour colour_albedo = concrete_material.colour_contribution(ray);
+                                                      ray_colour = ray_colour * colour_albedo;
+
+                                                      ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  }},
+                                       hit_material);
+                            final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+                            ray_colour = ray_colour * colour_albedo;
+                            bounces += 1;
                         }
                         else
                         {

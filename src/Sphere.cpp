@@ -29,6 +29,7 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
     }
     else if (s1 > 0.0)
     {
+        // The further hit is always coming out of the sphere
         Vec3 hit_point = ray.point_at(s1);
         Vec3 outwards_normal = (hit_point - centre_).normalise();
         return HitRecord{hit_point, outwards_normal * (-1.0), s1, false, material_id_};

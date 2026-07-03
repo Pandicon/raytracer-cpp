@@ -68,6 +68,17 @@ public:
         return *this - (normal * (normal.dot(*this) * 2.0));
     }
 
+    // Takes in a normalised normal to the plane the current vector hits and reflects the incoming normalised vector in this plane. The vector is assumed to be pointing into the plane, so this.dot(normal) <= 0
+    inline Vec3 refract(const Vec3 &normal, double n_previous_over_n_next) const
+    {
+        double minus_cos_theta = this->dot(normal);
+        Vec3 d_perp = (*this - normal * minus_cos_theta) * n_previous_over_n_next;
+        double par_squared = std::fmax(0.0, 1.0 - d_perp.length_squared());
+        Vec3 d_par = normal * (-std::sqrt(par_squared));
+        Vec3 refracted_direction = d_perp + d_par;
+        return refracted_direction;
+    }
+
     static Vec3 random_unit_vector()
     {
         double z = get_random_double(-1.0, 1.0);

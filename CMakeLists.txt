@@ -14,6 +14,7 @@ add_executable(
     src/Quadrilateral.cpp
     src/Scene.cpp
     src/Sphere.cpp
+    src/materials/Dielectric.cpp
     src/materials/Diffuse.cpp
     src/materials/Light.cpp
     src/materials/Metal.cpp

@@ -35,9 +35,9 @@ std::optional<HitRecord> Quadrilateral::hit(const Ray &ray) const
     {
         return std::nullopt;
     }
-    /*if (denominator > 0.0)
+    if (denominator > 0.0)
     {
-        return HitRecord{hit_point, normal_ * (-1.0), lambda, false, *this};
-    }*/
+        return HitRecord{hit_point, normal_ * (-1.0), lambda, false, material_id_};
+    }
     return HitRecord{hit_point, normal_, lambda, true, material_id_};
 };
