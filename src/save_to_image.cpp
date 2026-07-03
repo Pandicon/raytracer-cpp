@@ -2,7 +2,7 @@
 #include <string>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "libs/stb_image_write.h"
+#include <stb_image_write.h>
 #include "save_to_image.hpp"
 
 void save_texture(const std::vector<uint32_t> &pixels, int width, int height)

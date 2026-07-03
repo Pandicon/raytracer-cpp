@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(Stb REQUIRED)
 
 add_executable(
     Raytracer
@@ -20,6 +21,7 @@ add_executable(
 )
 
 target_include_directories(Raytracer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(Raytracer PRIVATE ${Stb_INCLUDE_DIR})
 
 target_link_libraries(Raytracer 
     PRIVATE 
