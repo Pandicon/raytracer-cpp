@@ -159,13 +159,27 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                                           }
                                                       }
                                                   },
+                                                  [&](const Metal &metal)
+                                                  {
+                                                      double n_previous = void_index_of_refraction;
+                                                      if (!indices_of_refraction.empty())
+                                                      {
+                                                          n_previous = indices_of_refraction.top();
+                                                      }
+                                                      emitted = metal.emitted(ray);
+
+                                                      std::optional<ScatterRecord> scatter_result = metal.scatter(ray, closest_hit->point, closest_hit->normal, n_previous);
+                                                      if (scatter_result)
+                                                      {
+                                                          colour_albedo = scatter_result->colour_albedo;
+                                                          ray_opt = scatter_result->scattered_ray;
+                                                      }
+                                                  },
                                                   [&](const auto &concrete_material)
                                                   {
-                                                      Colour emitted = concrete_material.emitted(ray);
-                                                      final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+                                                      emitted = concrete_material.emitted(ray);
 
-                                                      Colour colour_albedo = concrete_material.colour_contribution(ray);
-                                                      ray_colour = ray_colour * colour_albedo;
+                                                      colour_albedo = concrete_material.colour_contribution(ray);
 
                                                       ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
                                                   }},

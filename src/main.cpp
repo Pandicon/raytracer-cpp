@@ -54,21 +54,57 @@ int main(int argc, char *argv[])
         scene.add_object(sphere);
     }
     {
-        Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 1.0);
+        Metal metal_material = Metal::silver(1.0);
         uint32_t material_id = scene.add_material(metal_material);
         Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
-        Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.5);
+        Metal metal_material = Metal::silver(0.5);
         uint32_t material_id = scene.add_material(metal_material);
         Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {
-        Metal metal_material = Metal(Colour::fromRGBA(255, 255, 255, 255), 1.0, 0.0);
+        Metal metal_material = Metal::silver(0.0);
         uint32_t material_id = scene.add_material(metal_material);
         Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::copper(1.0);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 0.8, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::copper(0.5);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, 0.8, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::copper(0.0);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, 0.8, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::gold(1.0);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 1.6, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::gold(0.5);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, 1.6, 7.0), 0.3, material_id);
+        scene.add_object(sphere);
+    }
+    {
+        Metal metal_material = Metal::gold(0.0);
+        uint32_t material_id = scene.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, 1.6, 7.0), 0.3, material_id);
         scene.add_object(sphere);
     }
     {

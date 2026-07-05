@@ -14,6 +14,7 @@ public:
 
     Vec3() : x(0.0), y(0.0), z(0.0) {}
     Vec3(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
+    Vec3(double v) : x(v), y(v), z(v) {}
 
     inline Vec3 operator+(const Vec3 &other) const
     {
@@ -23,6 +24,26 @@ public:
     inline Vec3 operator-(const Vec3 &other) const
     {
         return Vec3(x - other.x, y - other.y, z - other.z);
+    }
+
+    inline Vec3 operator*(const Vec3 &other) const
+    {
+        return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    inline Vec3 operator/(const Vec3 &other) const
+    {
+        return Vec3(x / other.x, y / other.y, z / other.z);
+    }
+
+    inline Vec3 operator+(const double n) const
+    {
+        return Vec3(x + n, y + n, z + n);
+    }
+
+    inline Vec3 operator-(const double n) const
+    {
+        return Vec3(x - n, y - n, z - n);
     }
 
     inline Vec3 operator*(double n) const
@@ -60,6 +81,11 @@ public:
     {
         double length = this->length();
         return Vec3(x / length, y / length, z / length);
+    }
+
+    inline Vec3 sqrt() const
+    {
+        return Vec3(std::sqrt(x), std::sqrt(y), std::sqrt(z));
     }
 
     // Takes in a normalised normal to the plane the current vector hits and reflects the incoming vector in this plane
