@@ -25,4 +25,6 @@ public:
     // Three vertices in CCW order
     static Triangle from_vertices(Vec3 A, Vec3 B, Vec3 C, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
+
+    void set_material(uint32_t material_id);
 };

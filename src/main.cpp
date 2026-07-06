@@ -160,6 +160,9 @@ int main(int argc, char *argv[])
         Mirror mirror_material = Mirror(Colour::fromRGBA(255, 255, 255, 255));
         uint32_t material_id = scene.add_material(mirror_material);
         Triangle bottom_tile = Triangle(Vec3(2.1, -2.0, 8.1), Vec3(0.0, 0.0, -4.2), Vec3(-4.2, 0.0, 0.0), material_id);
+        Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
+        material_id = scene.add_material(diffuse_material);
+        bottom_tile.set_material(material_id);
         scene.add_object(bottom_tile);
     }
     {

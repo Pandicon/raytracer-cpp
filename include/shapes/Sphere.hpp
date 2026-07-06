@@ -17,4 +17,6 @@ private:
 public:
     Sphere(Vec3 center, float radius, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
+
+    void set_material(uint32_t material_id);
 };

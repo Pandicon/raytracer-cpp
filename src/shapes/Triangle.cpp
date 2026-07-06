@@ -47,3 +47,8 @@ std::optional<HitRecord> Triangle::hit(const Ray &ray) const
     }
     return HitRecord{hit_point, normal_, lambda, true, material_id_};
 };
+
+void Triangle::set_material(uint32_t material_id)
+{
+    material_id_ = material_id;
+};

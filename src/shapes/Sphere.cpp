@@ -39,3 +39,8 @@ std::optional<HitRecord> Sphere::hit(const Ray &ray) const
         return std::nullopt;
     }
 }
+
+void Sphere::set_material(uint32_t material_id)
+{
+    material_id_ = material_id;
+};

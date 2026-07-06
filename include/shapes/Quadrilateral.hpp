@@ -23,4 +23,6 @@ private:
 public:
     Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
+
+    void set_material(uint32_t material_id);
 };
