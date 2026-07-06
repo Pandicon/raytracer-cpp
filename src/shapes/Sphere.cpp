@@ -1,4 +1,4 @@
-#include "Sphere.hpp"
+#include "shapes/Sphere.hpp"
 
 Sphere::Sphere(Vec3 centre, float radius, uint32_t material_id) : centre_(centre), radius_(radius), material_id_(material_id) {}
 

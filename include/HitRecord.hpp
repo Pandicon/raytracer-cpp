@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "materials/Material.hpp"
+#include "Material.hpp"
 #include "Vec3.hpp"
 
 struct HitRecord

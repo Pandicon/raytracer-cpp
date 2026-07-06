@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Hittable.hpp"
-#include "materials/Material.hpp"
+#include "Material.hpp"
 
 class Scene
 {

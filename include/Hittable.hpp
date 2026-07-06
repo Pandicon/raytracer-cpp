@@ -2,7 +2,8 @@
 
 #include <variant>
 
-#include "Quadrilateral.hpp"
-#include "Sphere.hpp"
+#include "shapes/Quadrilateral.hpp"
+#include "shapes/Sphere.hpp"
+#include "shapes/Triangle.hpp"
 
-using Hittable = std::variant<Quadrilateral, Sphere>;
+using Hittable = std::variant<Quadrilateral, Sphere, Triangle>;

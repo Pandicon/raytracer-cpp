@@ -1,6 +1,6 @@
-#include "Quadrilateral.hpp"
+#include "shapes/Triangle.hpp"
 
-Quadrilateral::Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id) : Q_(Q), u_(u), v_(v), material_id_(material_id)
+Triangle::Triangle(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id) : Q_(Q), u_(u), v_(v), material_id_(material_id)
 {
     u_norm_ = u.normalise();
     v_norm_ = v.normalise();
@@ -10,9 +10,14 @@ Quadrilateral::Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id) : Q_(
     plane_d_ = normal_.dot(Q);
 };
 
-std::optional<HitRecord> Quadrilateral::hit(const Ray &ray) const
+Triangle Triangle::from_vertices(Vec3 A, Vec3 B, Vec3 C, uint32_t material_id)
 {
-    // Intersect ray with the plane containing the quadrilateral
+    return Triangle(A, B - A, C - A, material_id);
+};
+
+std::optional<HitRecord> Triangle::hit(const Ray &ray) const
+{
+    // Intersect ray with the plane containing the triangle
     double denominator = ray.direction.dot(normal_);
     if (std::fabs(denominator) < 1e-8)
     {
@@ -30,8 +35,9 @@ std::optional<HitRecord> Quadrilateral::hit(const Ray &ray) const
     Vec3 local_point = hit_point - Q_;
     double alpha = (local_point.cross(v_)).dot(u_cross_v_) / u_cross_v_len_squared;
     double beta = (u_.cross(local_point)).dot(u_cross_v_) / u_cross_v_len_squared;
+    double gamma = 1 - alpha - beta;
 
-    if (alpha < 0.0 || alpha > 1.0 || beta < 0.0 || beta > 1.0)
+    if (alpha < 0.0 || beta < 0.0 || gamma < 0.0)
     {
         return std::nullopt;
     }

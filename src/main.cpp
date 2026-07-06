@@ -11,9 +11,10 @@
 #include "materials/Diffuse.hpp"
 #include "materials/Metal.hpp"
 #include "materials/Mirror.hpp"
-#include "Quadrilateral.hpp"
 #include "Scene.hpp"
-#include "Sphere.hpp"
+#include "shapes/Quadrilateral.hpp"
+#include "shapes/Sphere.hpp"
+#include "shapes/Triangle.hpp"
 
 #include "save_to_image.hpp"
 
@@ -149,11 +150,23 @@ int main(int argc, char *argv[])
         Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), material_id);
         scene.add_object(back_wall);
     }
-    {
+    /*{
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
         uint32_t material_id = scene.add_material(diffuse_material);
         Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), material_id);
         scene.add_object(bottom_wall);
+    }*/
+    {
+        Mirror mirror_material = Mirror(Colour::fromRGBA(255, 255, 255, 255));
+        uint32_t material_id = scene.add_material(mirror_material);
+        Triangle bottom_tile = Triangle(Vec3(2.1, -2.0, 8.1), Vec3(0.0, 0.0, -4.2), Vec3(-4.2, 0.0, 0.0), material_id);
+        scene.add_object(bottom_tile);
+    }
+    {
+        Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
+        uint32_t material_id = scene.add_material(diffuse_material);
+        Triangle bottom_tile = Triangle::from_vertices(Vec3(-2.1, -2.0, 3.9), Vec3(2.1, -2.0, 3.9), Vec3(-2.1, -2.0, 8.1), material_id);
+        scene.add_object(bottom_tile);
     }
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));

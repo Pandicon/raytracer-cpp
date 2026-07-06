@@ -4,7 +4,7 @@
 
 #include "Colour.hpp"
 #include "HitRecord.hpp"
-#include "materials/Material.hpp"
+#include "Material.hpp"
 #include "Vec3.hpp"
 
 class Sphere

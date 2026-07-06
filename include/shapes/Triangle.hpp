@@ -2,10 +2,10 @@
 
 #include "Colour.hpp"
 #include "HitRecord.hpp"
-#include "materials/Material.hpp"
+#include "Material.hpp"
 #include "Vec3.hpp"
 
-class Quadrilateral
+class Triangle
 {
 private:
     Vec3 Q_;
@@ -21,6 +21,8 @@ private:
     uint32_t material_id_;
 
 public:
-    Quadrilateral(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id);
+    Triangle(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id);
+    // Three vertices in CCW order
+    static Triangle from_vertices(Vec3 A, Vec3 B, Vec3 C, uint32_t material_id);
     std::optional<HitRecord> hit(const Ray &ray) const;
 };
