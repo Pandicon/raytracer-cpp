@@ -12,11 +12,13 @@ add_executable(
     src/save_to_image.cpp
     src/main.cpp
     src/Scene.cpp
+    src/SceneBuilder.cpp
     src/materials/Dielectric.cpp
     src/materials/Diffuse.cpp
     src/materials/Light.cpp
     src/materials/Metal.cpp
     src/materials/Mirror.cpp
+    src/shapes/Composite.cpp
     src/shapes/Quadrilateral.cpp
     src/shapes/Sphere.cpp
     src/shapes/Triangle.cpp

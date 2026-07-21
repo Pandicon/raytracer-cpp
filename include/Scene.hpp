@@ -8,10 +8,13 @@
 
 class Scene
 {
+    friend class SceneBuilder;
+
 private:
     std::vector<Hittable> objects_;
     std::vector<Material> materials_;
     double void_index_of_refraction_;
+    Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction);
 
 public:
     Scene() = default;

@@ -25,9 +25,11 @@ Scene::Scene(double void_index_of_refraction) : objects_({}), void_index_of_refr
 {
 }
 
-Scene::Scene(std::vector<Hittable> objects, double void_index_of_refraction) : objects_(objects), void_index_of_refraction_(void_index_of_refraction)
+Scene::Scene(std::vector<Hittable> objects, double void_index_of_refraction) : objects_(std::move(objects)), void_index_of_refraction_(void_index_of_refraction)
 {
 }
+
+Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction) {}
 
 void Scene::add_object(const Hittable &object)
 {
