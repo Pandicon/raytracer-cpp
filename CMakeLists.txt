@@ -30,3 +30,7 @@ target_link_libraries(Raytracer
     $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
     $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
 )
+
+if(MSVC)
+    target_compile_options(Raytracer PRIVATE /fp:fast /arch:AVX512) # change /arch:AVX512 to /arch:AVX2 for more compatibility at the cost of a bit of performance
+endif()
