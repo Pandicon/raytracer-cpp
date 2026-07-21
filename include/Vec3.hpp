@@ -5,7 +5,7 @@
 
 #include "RandomUtils.hpp"
 
-const double ZERO_TOLERANCE = 0.001;
+constexpr double ZERO_TOLERANCE = 0.001;
 
 struct Vec3
 {

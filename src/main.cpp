@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-const double GAMMA = 2.2;
+constexpr double GAMMA = 2.2;
 
 std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image, double frames_accumulated)
 {

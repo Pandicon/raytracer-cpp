@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <random>
 
-const uint64_t N = 6364136223846793005ULL;
-const double one_over_max = 0x1.0p-32;
+constexpr uint64_t N = 6364136223846793005ULL;
+constexpr double one_over_max = 0x1.0p-32;
 
 inline uint64_t
 get_seed()

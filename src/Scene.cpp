@@ -10,14 +10,14 @@
 
 #include "matching.hpp"
 
-const double MINIMUM_T = 0.0001;
-const int MAX_BOUNCES = 10;
+constexpr double MINIMUM_T = 0.0001;
+constexpr int MAX_BOUNCES = 10;
 
-const uint32_t CHUNK_SIZE = 4;
+constexpr uint32_t CHUNK_SIZE = 4;
 
-const double G = 1.32471795724474602596;
-const double a1 = 1.0 / G;
-const double a2 = 1.0 / (G * G);
+constexpr double G = 1.32471795724474602596;
+constexpr double a1 = 1.0 / G;
+constexpr double a2 = 1.0 / (G * G);
 
 void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double void_index_of_refraction, double frame_number, double frames_per_loop);
 
