@@ -9,6 +9,7 @@ find_package(Stb REQUIRED)
 
 add_executable(
     Raytracer
+    src/AABB.cpp
     src/save_to_image.cpp
     src/main.cpp
     src/Scene.cpp
