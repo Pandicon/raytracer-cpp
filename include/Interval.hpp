@@ -58,6 +58,11 @@ public:
         return overlap_start < overlap_end;
     }
 
+    inline Interval intersect_with(const Interval &other) const
+    {
+        return Interval(std::max(min, other.min), std::min(max, other.max));
+    }
+
     inline Interval expand(double delta) const
     {
         if (is_empty())
@@ -72,6 +77,11 @@ public:
     inline Interval extend_to_include(double value) const
     {
         return Interval(std::min(min, value), std::max(max, value));
+    }
+
+    inline Interval union_with(const Interval &other) const
+    {
+        return Interval(std::min(min, other.min), std::max(max, other.max));
     }
 
     inline bool contains_value(double x) const
