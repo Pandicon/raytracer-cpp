@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AABB.hpp"
 #include "Colour.hpp"
 #include "HitRecord.hpp"
 #include "Material.hpp"
@@ -13,8 +14,6 @@ private:
     Vec3 v_;
     Vec3 u_cross_v_;
     double u_cross_v_len_squared;
-    Vec3 u_norm_;
-    Vec3 v_norm_;
     Vec3 normal_;
     double plane_d_;
 
@@ -27,4 +26,6 @@ public:
     std::optional<HitRecord> hit(const Ray &ray) const;
 
     void set_material(uint32_t material_id);
+
+    AABB bounding_box() const;
 };
