@@ -10,7 +10,6 @@
 
 #include "matching.hpp"
 
-constexpr double MINIMUM_T = 0.0001;
 constexpr int MAX_BOUNCES = 10;
 
 constexpr uint32_t CHUNK_SIZE = 4;
@@ -97,7 +96,6 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                     while (ray_opt && bounces <= MAX_BOUNCES)
                     {
                         Ray ray = *ray_opt;
-                        double closest_t = std::numeric_limits<double>::max();
                         std::optional<HitRecord> closest_hit = {};
                         for (const auto &object : objects)
                         {
@@ -105,9 +103,9 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                        {
                                 if (auto result = concrete_obj.hit(ray))
                                 {
-                                    if (result->t > MINIMUM_T && result->t < closest_t)
+                                    if (ray.valid_range.contains_value(result->t))
                                     {
-                                        closest_t = result->t;
+                                        ray.valid_range.max = result->t;
                                         closest_hit = result;
                                     }
                                 } }, object);
