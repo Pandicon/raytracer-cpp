@@ -21,3 +21,29 @@ bool AABB::intersects_ray(const Ray &ray) const
     Interval t_overlaps = ray.valid_range.intersect_with(x_intersection_interval).intersect_with(y_intersection_interval).intersect_with(z_intersection_interval);
     return !t_overlaps.is_empty();
 }
+
+CartesianAxis AABB::longest_axis() const
+{
+    if (x_interval_.length() > y_interval_.length())
+    {
+        if (z_interval_.length() > x_interval_.length())
+        {
+            return CartesianAxis::Z;
+        }
+        else
+        {
+            return CartesianAxis::X;
+        }
+    }
+    else
+    {
+        if (z_interval_.length() > y_interval_.length())
+        {
+            return CartesianAxis::Z;
+        }
+        else
+        {
+            return CartesianAxis::Y;
+        }
+    }
+}

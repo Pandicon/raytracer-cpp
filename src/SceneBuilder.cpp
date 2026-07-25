@@ -4,6 +4,7 @@
 #include <thread>
 #include <stack>
 
+#include "BVH.hpp"
 #include "Colour.hpp"
 #include "shapes/Composite.hpp"
 #include "Hittable.hpp"
@@ -39,7 +40,9 @@ Scene SceneBuilder::build()
 
     objects_.clear();
 
-    return Scene(std::move(hittable_objects), std::move(materials_), void_index_of_refraction_);
+    BVH bvh = BVH(hittable_objects);
+
+    return Scene(std::move(hittable_objects), std::move(materials_), void_index_of_refraction_, bvh);
 }
 
 void SceneBuilder::flatten_objects_into(std::vector<Hittable> &flat_list)

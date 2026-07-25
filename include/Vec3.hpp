@@ -3,7 +3,9 @@
 #include <cmath>
 #include <numbers>
 
+#include "CartesianAxis.hpp"
 #include "limits.hpp"
+#include "matching.hpp"
 #include "RandomUtils.hpp"
 
 struct Vec3
@@ -127,5 +129,20 @@ public:
     inline bool is_close_to_zero() const
     {
         return this->length_squared() < Limits::ZERO_TOLERANCE * Limits::ZERO_TOLERANCE;
+    }
+
+    inline double get_axis(CartesianAxis axis)
+    {
+        switch (axis)
+        {
+        case CartesianAxis::X:
+            return x;
+        case CartesianAxis::Y:
+            return y;
+        case CartesianAxis::Z:
+            return z;
+        default:
+            return x;
+        }
     }
 };

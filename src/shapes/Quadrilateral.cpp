@@ -51,3 +51,8 @@ AABB Quadrilateral::bounding_box() const
 {
     return AABB().extend_to_include(Q_).extend_to_include(Q_ + u_).extend_to_include(Q_ + v_).extend_to_include(Q_ + u_ + v_);
 }
+
+Vec3 Quadrilateral::get_centroid() const
+{
+    return Q_ + (u_ + v_) * 0.5;
+}

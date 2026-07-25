@@ -22,4 +22,6 @@ public:
     void set_material(uint32_t material_id);
 
     AABB bounding_box() const;
+
+    Vec3 get_centroid() const;
 };

@@ -134,6 +134,20 @@ int main(int argc, char *argv[])
         Sphere sphere = Sphere(Vec3(1.2, -1.0, 6.0), 0.5, material_id);
         scene_builder.add_object(std::move(sphere));
     }
+    double min_r = 0.0001;
+    double max_r = 0.05;
+    double min_x = -0.3;
+    double max_x = 0.3;
+    double min_y = 0.0;
+    double max_y = 0.0;
+    uint32_t num = 100000;
+    for (uint32_t i = 0; i < num; i += 1)
+    {
+        Diffuse diffuse_material = Diffuse(Colour::fromRGBA(0, 0, 255, 255));
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Sphere sphere = Sphere(Vec3(max_x - ((double)i / (double)num) * (max_x - min_x), max_y - ((double)i / (double)num) * (max_y - min_y), 5.0), max_r - ((double)i / (double)num) * (max_r - min_r), material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
     std::vector<SceneObject> box_objects;
     {
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(0, 255, 0, 255));
@@ -193,7 +207,7 @@ int main(int argc, char *argv[])
     double frames_accumulated = 0.0;
     std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     double last_frame = (double)SDL_GetTicks64();
-    double frames_per_loop = 10.0;
+    double frames_per_loop = 1.0;
     while (is_running)
     {
         double this_frame = (double)SDL_GetTicks64();

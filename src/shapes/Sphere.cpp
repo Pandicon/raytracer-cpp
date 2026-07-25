@@ -49,3 +49,8 @@ AABB Sphere::bounding_box() const
 {
     return AABB(Interval(centre_.x - radius_, centre_.x + radius_), Interval(centre_.y - radius_, centre_.y + radius_), Interval(centre_.z - radius_, centre_.z + radius_));
 }
+
+Vec3 Sphere::get_centroid() const
+{
+    return centre_;
+}

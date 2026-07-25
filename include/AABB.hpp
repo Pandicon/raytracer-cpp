@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CartesianAxis.hpp"
 #include "Interval.hpp"
 #include "Ray.hpp"
 #include "Vec3.hpp"
@@ -20,4 +21,6 @@ public:
     AABB union_with(const AABB &other) const;
 
     bool intersects_ray(const Ray &ray) const;
+
+    CartesianAxis longest_axis() const;
 };

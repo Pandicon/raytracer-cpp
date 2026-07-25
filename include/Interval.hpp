@@ -46,6 +46,19 @@ public:
         return min > max;
     }
 
+    inline double length() const
+    {
+        if (is_empty())
+        {
+            return 0.0;
+        }
+        if (min < 0.0 && max > universe_max() + min)
+        {
+            return universe_max();
+        }
+        return max - min;
+    }
+
     inline bool overlaps(const Interval &other) const
     {
         if (is_empty() || other.is_empty())
@@ -63,6 +76,11 @@ public:
         return Interval(std::max(min, other.min), std::min(max, other.max));
     }
 
+    inline Interval union_with(const Interval &other) const
+    {
+        return Interval(std::min(min, other.min), std::max(max, other.max));
+    }
+
     inline Interval expand(double delta) const
     {
         if (is_empty())
@@ -77,11 +95,6 @@ public:
     inline Interval extend_to_include(double value) const
     {
         return Interval(std::min(min, value), std::max(max, value));
-    }
-
-    inline Interval union_with(const Interval &other) const
-    {
-        return Interval(std::min(min, other.min), std::max(max, other.max));
     }
 
     inline bool contains_value(double x) const
