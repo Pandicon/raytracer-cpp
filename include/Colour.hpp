@@ -58,3 +58,32 @@ struct ColourRGB
         return final_a << 24 | final_r << 16 | final_g << 8 | final_b << 0;
     };
 };
+
+struct ColourXYZ
+{
+    double x;
+    double y;
+    double z;
+
+    ColourXYZ(double x_, double y_, double z_) : x(x_), y(y_), z(z_) {}
+
+    inline ColourXYZ operator+(ColourXYZ other) const
+    {
+        return ColourXYZ(x + other.x, y + other.y, z + other.z);
+    }
+
+    inline ColourXYZ operator*(ColourXYZ other) const
+    {
+        return ColourXYZ(x * other.x, y * other.y, z * other.z);
+    }
+
+    inline ColourXYZ operator*(double n) const
+    {
+        return ColourXYZ(x * n, y * n, z * n);
+    }
+
+    inline ColourXYZ operator/(double n) const
+    {
+        return ColourXYZ(x / n, y / n, z / n);
+    }
+};
