@@ -10,7 +10,7 @@ struct ColourRGB
 
     ColourRGB(double r_, double g_, double b_) : r(r_), g(g_), b(b_) {}
 
-    static ColourRGB fromRGBA(int r_, int g_, int b_)
+    static ColourRGB fromRGB(int r_, int g_, int b_)
     {
         return ColourRGB(((double)r_) / 255.0, ((double)g_) / 255.0, ((double)b_) / 255.0);
     }
