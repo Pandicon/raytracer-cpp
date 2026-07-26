@@ -19,7 +19,7 @@ private:
     Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh);
 
 public:
-    void render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop);
+    void render(std::vector<ColourRGB> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop);
 
     void add_object(const Hittable &object);
     uint32_t add_material(const Material &material);

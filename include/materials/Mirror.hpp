@@ -9,14 +9,14 @@
 class Mirror
 {
 private:
-    Colour colour_;
+    ColourRGB colour_;
 
 public:
-    Mirror(Colour colour);
+    Mirror(ColourRGB colour);
 
     std::optional<Ray> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const;
 
-    Colour colour_contribution(const Ray &_ray) const;
+    ColourRGB colour_contribution(const Ray &_ray) const;
 
-    Colour emitted(const Ray &_ray) const;
+    ColourRGB emitted(const Ray &_ray) const;
 };

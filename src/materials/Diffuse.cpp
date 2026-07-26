@@ -1,6 +1,6 @@
 #include "materials/Diffuse.hpp"
 
-Diffuse::Diffuse(Colour colour) : colour_(colour) {}
+Diffuse::Diffuse(ColourRGB colour) : colour_(colour) {}
 
 std::optional<Ray> Diffuse::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const
 {
@@ -13,12 +13,12 @@ std::optional<Ray> Diffuse::scatter(const Ray &ray, const Vec3 &hit_point, const
     return Ray(origin, scattered_direction.normalise());
 }
 
-Colour Diffuse::colour_contribution(const Ray &_ray) const
+ColourRGB Diffuse::colour_contribution(const Ray &_ray) const
 {
     return colour_;
 };
 
-Colour Diffuse::emitted(const Ray &_ray) const
+ColourRGB Diffuse::emitted(const Ray &_ray) const
 {
-    return Colour::black();
+    return ColourRGB::black();
 };

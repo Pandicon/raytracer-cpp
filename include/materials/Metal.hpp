@@ -9,7 +9,7 @@
 struct ScatterRecord
 {
     Ray scattered_ray;
-    Colour colour_albedo;
+    ColourRGB colour_albedo;
 };
 
 class Metal
@@ -24,7 +24,7 @@ public:
 
     std::optional<ScatterRecord> scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal, double n_previous) const;
 
-    Colour emitted(const Ray &_ray) const;
+    ColourRGB emitted(const Ray &_ray) const;
 
     // Values for specific metals come from https://refractiveindex.info/
 

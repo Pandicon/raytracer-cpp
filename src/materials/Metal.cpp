@@ -38,12 +38,12 @@ std::optional<ScatterRecord> Metal::scatter(const Ray &ray, const Vec3 &hit_poin
 
     const Vec3 f = (r_s + r_p) * 0.5;
 
-    Colour new_colour = Colour(f.x, f.y, f.z, 1.0);
+    ColourRGB new_colour = ColourRGB(f.x, f.y, f.z);
 
     return ScatterRecord(new_ray, new_colour);
 }
 
-Colour Metal::emitted(const Ray &_ray) const
+ColourRGB Metal::emitted(const Ray &_ray) const
 {
-    return Colour::black();
+    return ColourRGB::black();
 };

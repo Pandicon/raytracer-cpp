@@ -19,7 +19,7 @@ constexpr double G = 1.32471795724474602596;
 constexpr double a1 = 1.0 / G;
 constexpr double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<ColourRGB> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop);
 
 Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction), bvh_(bvh) {}
 
@@ -34,7 +34,7 @@ uint32_t Scene::add_material(const Material &material)
     return materials_.size() - 1;
 }
 
-void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
+void Scene::render(std::vector<ColourRGB> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
 {
     std::atomic<uint32_t> next_row{0};
     std::vector<std::jthread> threads;
@@ -44,7 +44,7 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<ColourRGB> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -70,7 +70,7 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
             for (uint32_t x = 0; x < width; x += 1)
             {
                 uint32_t pixel_index = y * width + x;
-                Colour pixel_accumulator = Colour::black();
+                ColourRGB pixel_accumulator = ColourRGB::black();
                 for (uint32_t f_i = 0; f_i < frames_per_loop; f_i += 1)
                 {
                     std::stack<double> indices_of_refraction;
@@ -84,8 +84,8 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                     Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((x_d - w_d / 2.0) / h_d, (height / 2.0 - y_d) / h_d, 1.0).normalise());
                     std::optional<Ray> ray_opt = ray;
                     int bounces = 0;
-                    Colour final_pixel_colour = Colour(0.0, 0.0, 0.0, 1.0); // Needs to be gathered by hitting lights
-                    Colour ray_colour = Colour::white();                    // What is currently being carried around, gets lost at bounces
+                    ColourRGB final_pixel_colour = ColourRGB(0.0, 0.0, 0.0); // Needs to be gathered by hitting lights
+                    ColourRGB ray_colour = ColourRGB::white();               // What is currently being carried around, gets lost at bounces
                     while (ray_opt && bounces <= MAX_BOUNCES)
                     {
                         Ray ray = *ray_opt;
@@ -111,8 +111,8 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                             const uint32_t hit_material_id = closest_hit->material_id_;
                             const Material &hit_material = materials[hit_material_id];
 
-                            Colour emitted = Colour::black();
-                            Colour colour_albedo = Colour::white();
+                            ColourRGB emitted = ColourRGB::black();
+                            ColourRGB colour_albedo = ColourRGB::white();
                             std::visit(overloaded{[&](const Dielectric &dielectric)
                                                   {
                                                       emitted = dielectric.emitted(ray);

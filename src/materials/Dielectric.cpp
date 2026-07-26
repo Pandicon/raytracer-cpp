@@ -1,7 +1,7 @@
 #include "materials/Dielectric.hpp"
 #include "RandomUtils.hpp"
 
-Dielectric::Dielectric(Colour colour, double index_of_refraction) : colour_(colour), index_of_refraction_(index_of_refraction) {}
+Dielectric::Dielectric(ColourRGB colour, double index_of_refraction) : colour_(colour), index_of_refraction_(index_of_refraction) {}
 
 std::optional<Ray> Dielectric::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal, double n_previous_over_n_next, bool &refracted) const
 {
@@ -35,12 +35,12 @@ std::optional<Ray> Dielectric::scatter(const Ray &ray, const Vec3 &hit_point, co
     return Ray(origin, refracted_direction);
 }
 
-Colour Dielectric::colour_contribution(const Ray &_ray) const
+ColourRGB Dielectric::colour_contribution(const Ray &_ray) const
 {
     return colour_;
 };
 
-Colour Dielectric::emitted(const Ray &_ray) const
+ColourRGB Dielectric::emitted(const Ray &_ray) const
 {
-    return Colour::black();
+    return ColourRGB::black();
 };

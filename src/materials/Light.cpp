@@ -1,6 +1,6 @@
 #include "materials/Light.hpp"
 
-Light::Light(Colour colour, double intensity) : colour_(colour), intensity_(intensity) {}
+Light::Light(ColourRGB colour, double intensity) : colour_(colour), intensity_(intensity) {}
 
 std::optional<Ray> Light::scatter(const Ray &_ray, const Vec3 &_hit_point, const Vec3 &_normal) const
 {
@@ -8,12 +8,12 @@ std::optional<Ray> Light::scatter(const Ray &_ray, const Vec3 &_hit_point, const
     return std::nullopt;
 }
 
-Colour Light::colour_contribution(const Ray &_ray) const
+ColourRGB Light::colour_contribution(const Ray &_ray) const
 {
-    return Colour::white();
+    return ColourRGB::white();
 };
 
-Colour Light::emitted(const Ray &_ray) const
+ColourRGB Light::emitted(const Ray &_ray) const
 {
     return colour_ * intensity_;
 };
