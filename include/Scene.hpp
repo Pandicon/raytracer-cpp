@@ -3,6 +3,11 @@
 #include <memory>
 #include <vector>
 
+extern "C"
+{
+#include "external/rgb2spec/rgb2spec.h"
+}
+
 #include "BVH.hpp"
 #include "Hittable.hpp"
 #include "Material.hpp"
@@ -16,10 +21,13 @@ private:
     std::vector<Material> materials_;
     double void_index_of_refraction_;
     BVH bvh_;
-    Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh);
+    RGB2Spec *rgb2spec_;
+    Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh, RGB2Spec *rgb2spec);
 
 public:
-    void render(std::vector<ColourRGB> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop);
+    ~Scene();
+
+    void render(std::vector<ColourXYZ> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop);
 
     void add_object(const Hittable &object);
     uint32_t add_material(const Material &material);

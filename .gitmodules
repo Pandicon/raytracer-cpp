@@ -1,0 +1,3 @@
+[submodule "include/external/rgb2spec"]
+	path = include/external/rgb2spec
+	url = https://github.com/Pandicon/rgb2spec

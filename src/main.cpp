@@ -24,7 +24,7 @@ constexpr int WIDTH = 800;
 constexpr int HEIGHT = 800;
 constexpr double FRAMES_PER_LOOP = 10.0;
 
-std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourRGB> &accumulated_image, double frames_accumulated);
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &accumulated_image, double frames_accumulated);
 
 int main(int argc, char *argv[])
 {
@@ -150,26 +150,26 @@ int main(int argc, char *argv[])
         scene_builder.add_object(std::move(sphere));
     }*/
     {
-        Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), 1.5);
+        Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), 1.5, scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(glass_material);
         Sphere sphere = Sphere(Vec3(0.0, 0.0, 6.0), 0.5, material_id);
         scene_builder.add_object(std::move(sphere));
     }
     std::vector<SceneObject> box_objects;
     {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(0, 255, 0));
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(0, 255, 0), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), material_id);
         box_objects.push_back(std::move(right_wall));
     }
     {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 0, 0));
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 0, 0), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
         box_objects.push_back(std::move(left_wall));
     }
     {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255));
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), material_id);
         box_objects.push_back(std::move(back_wall));
@@ -181,10 +181,10 @@ int main(int argc, char *argv[])
         scene_builder.add_object(std::move(bottom_wall));
     }*/
     {
-        Mirror mirror_material = Mirror(ColourRGB::fromRGB(255, 255, 255));
+        Mirror mirror_material = Mirror(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(mirror_material);
         Triangle bottom_tile_1 = Triangle(Vec3(2.1, -2.0, 8.1), Vec3(0.0, 0.0, -4.2), Vec3(-4.2, 0.0, 0.0), material_id);
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255));
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
         material_id = scene_builder.add_material(diffuse_material);
         bottom_tile_1.set_material(material_id);
         Triangle bottom_tile_2 = Triangle::from_vertices(Vec3(-2.1, -2.0, 3.9), Vec3(2.1, -2.0, 3.9), Vec3(-2.1, -2.0, 8.1), material_id);
@@ -195,13 +195,13 @@ int main(int argc, char *argv[])
         box_objects.push_back(std::move(floor));
     }
     {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255));
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
         box_objects.push_back(std::move(top_wall));
     }
     {
-        Light light_material = Light(ColourRGB::fromRGB(255, 255, 255), 2.0);
+        Light light_material = Light(ColourRGB::fromRGB(255, 255, 255), 2.0 / 150.0, scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(light_material);
         Quadrilateral top_light = Quadrilateral(Vec3(-0.5, 1.999, 5.5), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0), material_id);
         box_objects.push_back(std::move(top_light));
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
     Scene scene = scene_builder.build();
 
     double frames_accumulated = 0.0;
-    std::vector<ColourRGB> accumulated_image(WIDTH * HEIGHT, ColourRGB(0.0, 0.0, 0.0));
+    std::vector<ColourXYZ> accumulated_image(WIDTH * HEIGHT, ColourXYZ(0.0, 0.0, 0.0));
     double last_frame = (double)SDL_GetTicks64();
 
     while (is_running)
@@ -272,10 +272,11 @@ int main(int argc, char *argv[])
 
 constexpr double GAMMA = 2.2;
 
-std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourRGB> &accumulated_image, double frames_accumulated)
+std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &accumulated_image, double frames_accumulated)
 {
-    return accumulated_image | std::views::transform([frames_accumulated](ColourRGB c_accumulated)
+    return accumulated_image | std::views::transform([frames_accumulated](ColourXYZ c_accumulated_xyz)
                                                      {
+                                                const ColourRGB c_accumulated = c_accumulated_xyz.to_rgb();
                                                 const ColourRGB c = c_accumulated / frames_accumulated;
                                                 const ColourRGB tonemapped = ColourRGB(c.r / (c.r + 1.0), c.g / (c.g + 1.0), c.b / (c.b + 1.0));
                                                 const ColourRGB gamma_corrected = ColourRGB(std::pow(tonemapped.r, 1.0 / GAMMA), std::pow(tonemapped.g, 1.0 / GAMMA), std::pow(tonemapped.b, 1.0 / GAMMA));

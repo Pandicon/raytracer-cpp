@@ -1,6 +1,10 @@
 #include "materials/Diffuse.hpp"
 
-Diffuse::Diffuse(ColourRGB colour) : colour_(colour) {}
+Diffuse::Diffuse(ColourRGB colour, RGB2Spec *rgb2spec)
+{
+    float rgb[3] = {static_cast<float>(colour.r), static_cast<float>(colour.g), static_cast<float>(colour.b)};
+    rgb2spec_fetch(rgb2spec, rgb, coefficients_);
+}
 
 std::optional<Ray> Diffuse::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal) const
 {
@@ -13,12 +17,12 @@ std::optional<Ray> Diffuse::scatter(const Ray &ray, const Vec3 &hit_point, const
     return Ray(origin, scattered_direction.normalise());
 }
 
-ColourRGB Diffuse::colour_contribution(const Ray &_ray) const
+double Diffuse::albedo(const Ray &_ray, double lambda) const
 {
-    return colour_;
+    return rgb2spec_eval_precise(coefficients_, lambda);
 };
 
-ColourRGB Diffuse::emitted(const Ray &_ray) const
+double Diffuse::emitted(const Ray &_ray) const
 {
-    return ColourRGB::black();
+    return 0.0;
 };

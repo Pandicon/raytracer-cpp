@@ -2,20 +2,21 @@
 
 #include <optional>
 
-#include "external/rgb2spec/rgb2spec.h"
-
 #include "Colour.hpp"
 #include "Ray.hpp"
 #include "Vec3.hpp"
 
-class Light
+class BlackBody
 {
 private:
+    static constexpr double hcc = 5.955214763e-17;
+    static constexpr double hc_over_kb = 0.01438777354;
+
+    double temperature_;
     double intensity_;
-    float coefficients_[3];
 
 public:
-    Light(ColourRGB colour, double intensity, RGB2Spec *rgb2spec);
+    BlackBody(double temperature, double intensity);
 
     std::optional<Ray> scatter(const Ray &_ray, const Vec3 &_hit_point, const Vec3 &_normal) const;
 
