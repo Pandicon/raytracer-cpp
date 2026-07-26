@@ -20,8 +20,9 @@
 
 #include "save_to_image.hpp"
 
-const int WIDTH = 800;
-const int HEIGHT = 800;
+constexpr int WIDTH = 800;
+constexpr int HEIGHT = 800;
+constexpr double FRAMES_PER_LOOP = 10.0;
 
 std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<Colour> &accumulated_image, double frames_accumulated);
 
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
     SDL_Event event;
 
     SceneBuilder scene_builder = SceneBuilder(1.0);
-    {
+    /*{
         Diffuse diffuse_material = Diffuse(Colour::fromRGBA(255, 255, 255, 255));
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Sphere sphere = Sphere(Vec3(-1.6, 0.0, 7.0), 0.3, material_id);
@@ -147,6 +148,12 @@ int main(int argc, char *argv[])
         uint32_t material_id = scene_builder.add_material(diffuse_material);
         Sphere sphere = Sphere(Vec3(max_x - ((double)i / (double)num) * (max_x - min_x), max_y - ((double)i / (double)num) * (max_y - min_y), 5.0), max_r - ((double)i / (double)num) * (max_r - min_r), material_id);
         scene_builder.add_object(std::move(sphere));
+    }*/
+    {
+        Dielectric glass_material = Dielectric(Colour::fromRGBA(255, 255, 255, 255), 1.5);
+        uint32_t material_id = scene_builder.add_material(glass_material);
+        Sphere sphere = Sphere(Vec3(0.0, 0.0, 6.0), 0.5, material_id);
+        scene_builder.add_object(std::move(sphere));
     }
     std::vector<SceneObject> box_objects;
     {
@@ -207,7 +214,7 @@ int main(int argc, char *argv[])
     double frames_accumulated = 0.0;
     std::vector<Colour> accumulated_image(WIDTH * HEIGHT, Colour(0.0, 0.0, 0.0, 0.0));
     double last_frame = (double)SDL_GetTicks64();
-    double frames_per_loop = 1.0;
+
     while (is_running)
     {
         double this_frame = (double)SDL_GetTicks64();
@@ -239,13 +246,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        frames_accumulated += frames_per_loop;
+        frames_accumulated += FRAMES_PER_LOOP;
 
-        scene.render(accumulated_image, WIDTH, HEIGHT, num_threads, frames_accumulated, frames_per_loop);
+        scene.render(accumulated_image, WIDTH, HEIGHT, num_threads, frames_accumulated, FRAMES_PER_LOOP);
 
         std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
 
-        std::cout << 1000.0 / (this_frame - last_frame) * frames_per_loop << " FPS (average of " << 1000.0 * frames_accumulated / this_frame << ")" << std::endl;
+        std::cout << 1000.0 / (this_frame - last_frame) * FRAMES_PER_LOOP << " FPS (average of " << 1000.0 * frames_accumulated / this_frame << ")" << std::endl;
 
         SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
 
