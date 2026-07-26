@@ -4,13 +4,13 @@
 #include <thread>
 #include <stack>
 
+#include "BVH.hpp"
 #include "Colour.hpp"
 #include "Hittable.hpp"
 #include "Scene.hpp"
 
 #include "matching.hpp"
 
-constexpr double MINIMUM_T = 0.0001;
 constexpr int MAX_BOUNCES = 10;
 
 constexpr uint32_t CHUNK_SIZE = 4;
@@ -19,17 +19,9 @@ constexpr double G = 1.32471795724474602596;
 constexpr double a1 = 1.0 / G;
 constexpr double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double void_index_of_refraction, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop);
 
-Scene::Scene(double void_index_of_refraction) : objects_({}), void_index_of_refraction_(void_index_of_refraction)
-{
-}
-
-Scene::Scene(std::vector<Hittable> objects, double void_index_of_refraction) : objects_(std::move(objects)), void_index_of_refraction_(void_index_of_refraction)
-{
-}
-
-Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction) {}
+Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction), bvh_(bvh) {}
 
 void Scene::add_object(const Hittable &object)
 {
@@ -48,11 +40,11 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     std::vector<std::jthread> threads;
     for (int thread_id = 0; thread_id < n_threads; thread_id += 1)
     {
-        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), std::cref(materials_), void_index_of_refraction_, frame_number, frames_per_loop);
+        threads.emplace_back(run_render_thread, std::ref(accumulated_pixels), std::ref(next_row), width, height, std::cref(objects_), std::cref(materials_), bvh_, void_index_of_refraction_, frame_number, frames_per_loop);
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, double void_index_of_refraction, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -97,21 +89,22 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                     while (ray_opt && bounces <= MAX_BOUNCES)
                     {
                         Ray ray = *ray_opt;
-                        double closest_t = std::numeric_limits<double>::max();
-                        std::optional<HitRecord> closest_hit = {};
+                        /*std::optional<HitRecord> closest_hit = {};
                         for (const auto &object : objects)
                         {
                             std::visit([&](const auto &concrete_obj)
                                        {
                                 if (auto result = concrete_obj.hit(ray))
                                 {
-                                    if (result->t > MINIMUM_T && result->t < closest_t)
+                                    if (ray.valid_range.contains_value(result->t))
                                     {
-                                        closest_t = result->t;
+                                        ray.valid_range.max = result->t;
                                         closest_hit = result;
                                     }
                                 } }, object);
-                        }
+                        }*/
+
+                        std::optional<HitRecord> closest_hit = bvh.intersect_with_ray(ray, objects);
 
                         if (closest_hit)
                         {

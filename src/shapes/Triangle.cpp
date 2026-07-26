@@ -2,8 +2,6 @@
 
 Triangle::Triangle(Vec3 Q, Vec3 u, Vec3 v, uint32_t material_id) : Q_(Q), u_(u), v_(v), material_id_(material_id)
 {
-    u_norm_ = u.normalise();
-    v_norm_ = v.normalise();
     u_cross_v_ = u.cross(v);
     u_cross_v_len_squared = u_cross_v_.length_squared();
     normal_ = u.cross(v).normalise();
@@ -52,3 +50,13 @@ void Triangle::set_material(uint32_t material_id)
 {
     material_id_ = material_id;
 };
+
+AABB Triangle::bounding_box() const
+{
+    return AABB().extend_to_include(Q_).extend_to_include(Q_ + u_).extend_to_include(Q_ + v_);
+}
+
+Vec3 Triangle::get_centroid() const
+{
+    return Q_ + (u_ + v_) / 3.0;
+}

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "AABB.hpp"
 #include "Colour.hpp"
 #include "HitRecord.hpp"
 #include "Material.hpp"
@@ -19,4 +20,8 @@ public:
     std::optional<HitRecord> hit(const Ray &ray) const;
 
     void set_material(uint32_t material_id);
+
+    AABB bounding_box() const;
+
+    Vec3 get_centroid() const;
 };
