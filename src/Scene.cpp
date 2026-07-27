@@ -134,7 +134,7 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                       {
                                                           // Leaving the object (but may internally reflect)
                                                           indices_of_refraction.pop(); // Remove the current index of refraction
-                                                          double n_previous = dielectric.index_of_refraction();
+                                                          double n_previous = dielectric.index_of_refraction(lambda);
                                                           double n_next = void_index_of_refraction;
                                                           if (!indices_of_refraction.empty())
                                                           {
@@ -145,7 +145,7 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                           if (!refracted)
                                                           {
                                                               // We did not actually leave the medium
-                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                              indices_of_refraction.push(dielectric.index_of_refraction(lambda));
                                                           }
                                                       }
                                                       else
@@ -156,13 +156,13 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                           {
                                                               n_previous = indices_of_refraction.top();
                                                           }
-                                                          double n_next = dielectric.index_of_refraction();
+                                                          double n_next = dielectric.index_of_refraction(lambda);
                                                           bool refracted = true;
                                                           ray_opt = dielectric.scatter(ray, closest_hit->point, closest_hit->normal, n_previous / n_next, refracted);
                                                           if (refracted)
                                                           {
                                                               // We entered the medium
-                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                              indices_of_refraction.push(dielectric.index_of_refraction(lambda));
                                                           }
                                                       }
                                                   },

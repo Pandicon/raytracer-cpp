@@ -1,6 +1,8 @@
+#include <ctime>
 #include <iostream>
 #include <memory>
 #include <ranges>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -23,6 +25,7 @@
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 800;
 constexpr double FRAMES_PER_LOOP = 10.0;
+const std::optional<std::string> FILE_TO_LOAD = "1785138448";
 
 std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &accumulated_image, double frames_accumulated);
 
@@ -150,9 +153,10 @@ int main(int argc, char *argv[])
         scene_builder.add_object(std::move(sphere));
     }*/
     {
-        Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), 1.5, scene_builder.rgb2spec);
+        // Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), {1.03961212, 0.231792344, 1.01046945}, {0.00600069867, 0.0200179144, 103.560653}, scene_builder.rgb2spec);
+        Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), {1.73759695, 0.313747346, 1.89878101}, {0.013188707, 0.0623068142, 155.23629}, scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(glass_material);
-        Sphere sphere = Sphere(Vec3(0.0, 0.0, 6.0), 0.5, material_id);
+        Sphere sphere = Sphere(Vec3(0.45, -0.75, 6.35), 0.75, material_id);
         scene_builder.add_object(std::move(sphere));
     }
     std::vector<SceneObject> box_objects;
@@ -201,9 +205,15 @@ int main(int argc, char *argv[])
         box_objects.push_back(std::move(top_wall));
     }
     {
-        Light light_material = Light(ColourRGB::fromRGB(255, 255, 255), 2.0 / 150.0, scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(light_material);
-        Quadrilateral top_light = Quadrilateral(Vec3(-0.5, 1.999, 5.5), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0), material_id);
+        /*Light light_material = Light(ColourRGB::fromRGB(255, 255, 255), 25.0 * 2.0 / 150.0, scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(light_material);*/
+        double size = 1.0;
+        BlackBody black_body_material = BlackBody(5700, 2.0 / 150.0 / (size * size));
+        uint32_t material_id = scene_builder.add_material(black_body_material);
+        Vec3 center = Vec3(0.0, 1.999, 5.0);
+        Vec3 a = Vec3(size, 0.0, 0.0);
+        Vec3 b = Vec3(0.0, 0.0, size);
+        Quadrilateral top_light = Quadrilateral(center - a * 0.5 + b * 0.5, a, b, material_id);
         box_objects.push_back(std::move(top_light));
     }
     auto box = std::make_unique<Composite>(std::move(box_objects));
@@ -213,6 +223,10 @@ int main(int argc, char *argv[])
 
     double frames_accumulated = 0.0;
     std::vector<ColourXYZ> accumulated_image(WIDTH * HEIGHT, ColourXYZ(0.0, 0.0, 0.0));
+    if (FILE_TO_LOAD.has_value())
+    {
+        load_data(accumulated_image, frames_accumulated, FILE_TO_LOAD.value());
+    }
     double last_frame = (double)SDL_GetTicks64();
 
     while (is_running)
@@ -236,7 +250,8 @@ int main(int argc, char *argv[])
                 {
                     std::vector<uint32_t> accumulated_pixels =
                         apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
-                    save_texture(accumulated_pixels, WIDTH, HEIGHT);
+                    save_texture(accumulated_pixels, WIDTH, HEIGHT, std::to_string(std::time(nullptr)));
+                    save_data(accumulated_image, frames_accumulated, std::to_string(std::time(nullptr)));
                     break;
                 }
 
