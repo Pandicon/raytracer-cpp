@@ -9,11 +9,13 @@
 class BlackBody
 {
 private:
-    static constexpr double hcc = 5.955214763e-17;
-    static constexpr double hc_over_kb = 0.01438777354;
+    static constexpr double hcc = 5.955214763e22;
+    static constexpr double hc_over_kb = 1.438777354e7;
 
     double temperature_;
     double intensity_;
+
+    static double planck_radiation(double lambda, double temperature);
 
 public:
     BlackBody(double temperature, double intensity);
