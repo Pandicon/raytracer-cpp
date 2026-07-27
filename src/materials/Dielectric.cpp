@@ -1,8 +1,13 @@
 #include "materials/Dielectric.hpp"
 #include "RandomUtils.hpp"
 
-Dielectric::Dielectric(ColourRGB colour, double index_of_refraction, RGB2Spec *rgb2spec) : index_of_refraction_(index_of_refraction)
+Dielectric::Dielectric(ColourRGB colour, const std::vector<double> &As, const std::vector<double> &Bs, RGB2Spec *rgb2spec) : num_terms_(static_cast<uint8_t>(std::min(As.size(), MAX_TERMS)))
 {
+    for (size_t i = 0; i < num_terms_; ++i)
+    {
+        As_[i] = As[i];
+        Bs_[i] = Bs[i];
+    }
     float rgb[3] = {static_cast<float>(colour.r), static_cast<float>(colour.g), static_cast<float>(colour.b)};
     rgb2spec_fetch(rgb2spec, rgb, coefficients_);
 }
