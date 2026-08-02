@@ -29,4 +29,6 @@ public:
     Scene build();
 
     void flatten_objects_into(std::vector<Hittable> &flat_list);
+
+    static SceneBuilder prism_rainbow();
 };

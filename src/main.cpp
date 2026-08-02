@@ -25,7 +25,8 @@
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 800;
 constexpr double FRAMES_PER_LOOP = 10.0;
-const std::optional<std::string> FILE_TO_LOAD = "1785138448";
+constexpr std::optional<std::string> FILE_TO_LOAD = std::nullopt;
+constexpr std::optional<unsigned int> THREADS_TO_USE_OVERRIDE = std::nullopt;
 
 std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &accumulated_image, double frames_accumulated);
 
@@ -35,6 +36,10 @@ int main(int argc, char *argv[])
     if (num_threads == 0)
     {
         num_threads = 2;
+    }
+    if (THREADS_TO_USE_OVERRIDE.has_value())
+    {
+        num_threads = THREADS_TO_USE_OVERRIDE.value();
     }
     std::cout << "Using " << num_threads << " thread(s) for rendering" << std::endl;
 
@@ -53,7 +58,7 @@ int main(int argc, char *argv[])
     bool is_running = true;
     SDL_Event event;
 
-    SceneBuilder scene_builder = SceneBuilder(1.0);
+    SceneBuilder scene_builder = SceneBuilder::prism_rainbow();
     /*{
         Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255, 255));
         uint32_t material_id = scene_builder.add_material(diffuse_material);
@@ -152,39 +157,14 @@ int main(int argc, char *argv[])
         Sphere sphere = Sphere(Vec3(max_x - ((double)i / (double)num) * (max_x - min_x), max_y - ((double)i / (double)num) * (max_y - min_y), 5.0), max_r - ((double)i / (double)num) * (max_r - min_r), material_id);
         scene_builder.add_object(std::move(sphere));
     }*/
-    {
+    /*{
         // Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), {1.03961212, 0.231792344, 1.01046945}, {0.00600069867, 0.0200179144, 103.560653}, scene_builder.rgb2spec);
         Dielectric glass_material = Dielectric(ColourRGB::fromRGB(255, 255, 255), {1.73759695, 0.313747346, 1.89878101}, {0.013188707, 0.0623068142, 155.23629}, scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(glass_material);
         Sphere sphere = Sphere(Vec3(0.45, -0.75, 6.35), 0.75, material_id);
         scene_builder.add_object(std::move(sphere));
-    }
-    std::vector<SceneObject> box_objects;
-    {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(0, 255, 0), scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(diffuse_material);
-        Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), material_id);
-        box_objects.push_back(std::move(right_wall));
-    }
-    {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 0, 0), scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(diffuse_material);
-        Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
-        box_objects.push_back(std::move(left_wall));
-    }
-    {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(diffuse_material);
-        Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), material_id);
-        box_objects.push_back(std::move(back_wall));
-    }
-    /*{
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255, 255));
-        uint32_t material_id = scene_builder.add_material(diffuse_material);
-        Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), material_id);
-        scene_builder.add_object(std::move(bottom_wall));
     }*/
-    {
+    /*{
         Mirror mirror_material = Mirror(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
         uint32_t material_id = scene_builder.add_material(mirror_material);
         Triangle bottom_tile_1 = Triangle(Vec3(2.1, -2.0, 8.1), Vec3(0.0, 0.0, -4.2), Vec3(-4.2, 0.0, 0.0), material_id);
@@ -197,27 +177,7 @@ int main(int argc, char *argv[])
         floor_objects.push_back(std::move(bottom_tile_2));
         auto floor = std::make_unique<Composite>(std::move(floor_objects));
         box_objects.push_back(std::move(floor));
-    }
-    {
-        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(diffuse_material);
-        Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
-        box_objects.push_back(std::move(top_wall));
-    }
-    {
-        /*Light light_material = Light(ColourRGB::fromRGB(255, 255, 255), 25.0 * 2.0 / 150.0, scene_builder.rgb2spec);
-        uint32_t material_id = scene_builder.add_material(light_material);*/
-        double size = 1.0;
-        BlackBody black_body_material = BlackBody(5700, 2.0 / 150.0 / (size * size));
-        uint32_t material_id = scene_builder.add_material(black_body_material);
-        Vec3 center = Vec3(0.0, 1.999, 5.0);
-        Vec3 a = Vec3(size, 0.0, 0.0);
-        Vec3 b = Vec3(0.0, 0.0, size);
-        Quadrilateral top_light = Quadrilateral(center - a * 0.5 + b * 0.5, a, b, material_id);
-        box_objects.push_back(std::move(top_light));
-    }
-    auto box = std::make_unique<Composite>(std::move(box_objects));
-    scene_builder.add_object(std::move(box));
+    }*/
 
     Scene scene = scene_builder.build();
 
@@ -293,7 +253,11 @@ std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &a
                                                      {
                                                 const ColourRGB c_accumulated = c_accumulated_xyz.to_rgb();
                                                 const ColourRGB c = c_accumulated / frames_accumulated;
-                                                const ColourRGB tonemapped = ColourRGB(c.r / (c.r + 1.0), c.g / (c.g + 1.0), c.b / (c.b + 1.0));
+                                                const ColourRGB c_safe = ColourRGB(std::max(0.0, c.r), std::max(0.0, c.g), std::max(0.0, c.b));
+                                                const double max_channel = std::max(0.0, std::max(c_safe.r, std::max(c_safe.g, c_safe.b)));
+                                                const double scale = 1.0 / (max_channel + 1.0);
+                                                const ColourRGB tonemapped = c_safe * scale;
+                                                //const ColourRGB tonemapped = ColourRGB(c.r / (c.r + 1.0), c.g / (c.g + 1.0), c.b / (c.b + 1.0));
                                                 const ColourRGB gamma_corrected = ColourRGB(std::pow(tonemapped.r, 1.0 / GAMMA), std::pow(tonemapped.g, 1.0 / GAMMA), std::pow(tonemapped.b, 1.0 / GAMMA));
                                                 return gamma_corrected.pack(255); }) |
            std::ranges::to<std::vector>();

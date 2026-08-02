@@ -183,14 +183,6 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                       }*/
                                                       throw std::runtime_error("Metals are not implemented yet");
                                                   },
-                                                  [&](const Light &light)
-                                                  {
-                                                      emitted = light.emitted(ray, lambda);
-
-                                                      colour_albedo = light.albedo(ray);
-
-                                                      ray_opt = light.scatter(ray, closest_hit->point, closest_hit->normal);
-                                                  },
                                                   [&](const BlackBody &bb)
                                                   {
                                                       emitted = bb.emitted(ray, lambda);
@@ -198,6 +190,22 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                       colour_albedo = bb.albedo(ray);
 
                                                       ray_opt = bb.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const DirectedEmitter &directed_emitter)
+                                                  {
+                                                      emitted = directed_emitter.emitted(ray, closest_hit->normal, lambda);
+
+                                                      colour_albedo = directed_emitter.albedo(ray);
+
+                                                      ray_opt = directed_emitter.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const Light &light)
+                                                  {
+                                                      emitted = light.emitted(ray, lambda);
+
+                                                      colour_albedo = light.albedo(ray);
+
+                                                      ray_opt = light.scatter(ray, closest_hit->point, closest_hit->normal);
                                                   },
                                                   [&](const Diffuse &diffuse)
                                                   {

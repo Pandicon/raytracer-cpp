@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -40,6 +41,7 @@ void save_texture(const std::vector<uint32_t> &pixels, int width, int height, co
 void save_data(const std::vector<ColourXYZ> &pixels, double accumulated_frames, const std::string &filename)
 {
     std::ofstream raw_file = std::ofstream(filename + ".raw");
+    raw_file << std::fixed << std::setprecision(10);
     raw_file << accumulated_frames << '\n';
     raw_file << pixels.size() << '\n';
     for (const ColourXYZ &c : pixels)

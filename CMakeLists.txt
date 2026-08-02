@@ -18,6 +18,7 @@ add_executable(
     src/materials/BlackBody.cpp
     src/materials/Dielectric.cpp
     src/materials/Diffuse.cpp
+    src/materials/DirectedEmitter.cpp
     src/materials/Light.cpp
     src/materials/Metal.cpp
     src/materials/Mirror.cpp
