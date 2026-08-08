@@ -72,6 +72,112 @@ void SceneBuilder::flatten_objects_into(std::vector<Hittable> &flat_list)
     }
 }
 
+SceneBuilder SceneBuilder::metal_spheres()
+{
+    SceneBuilder scene_builder = SceneBuilder(1.0);
+
+    {
+        Metal metal_material = Metal::silver(1.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, -0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::silver(0.5);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, -0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::silver(0.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, -0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::copper(1.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 0.0, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::copper(0.5);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, 0.0, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::copper(0.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, 0.0, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::gold(1.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(-0.8, 0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::gold(0.5);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.0, 0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+    {
+        Metal metal_material = Metal::gold(0.0);
+        uint32_t material_id = scene_builder.add_material(metal_material);
+        Sphere sphere = Sphere(Vec3(0.8, 0.8, 7.0), 0.3, material_id);
+        scene_builder.add_object(std::move(sphere));
+    }
+
+    std::vector<SceneObject> box_objects;
+    {
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(0, 255, 0), scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Quadrilateral right_wall = Quadrilateral(Vec3(2.0, -2.1, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(0.0, 4.2, 0.0), material_id);
+        box_objects.push_back(std::move(right_wall));
+    }
+    {
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 0, 0), scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Quadrilateral left_wall = Quadrilateral(Vec3(-2.0, -2.1, 3.9), Vec3(0.0, 4.2, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
+        box_objects.push_back(std::move(left_wall));
+    }
+    {
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Quadrilateral back_wall = Quadrilateral(Vec3(-2.1, -2.1, 8.0), Vec3(0.0, 4.2, 0.0), Vec3(4.2, 0.0, 0.0), material_id);
+        box_objects.push_back(std::move(back_wall));
+    }
+    {
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Quadrilateral bottom_wall = Quadrilateral(Vec3(-2.1, -2.0, 3.9), Vec3(0.0, 0.0, 4.2), Vec3(4.2, 0.0, 0.0), material_id);
+        scene_builder.add_object(std::move(bottom_wall));
+    }
+    {
+        Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255), scene_builder.rgb2spec);
+        uint32_t material_id = scene_builder.add_material(diffuse_material);
+        Quadrilateral top_wall = Quadrilateral(Vec3(-2.1, 2.0, 3.9), Vec3(4.2, 0.0, 0.0), Vec3(0.0, 0.0, 4.2), material_id);
+        box_objects.push_back(std::move(top_wall));
+    }
+    {
+        double size = 1.0;
+        BlackBody black_body_material = BlackBody(5700, 2.0 / 150.0 / (size * size));
+        uint32_t material_id = scene_builder.add_material(black_body_material);
+        Vec3 center = Vec3(0.0, 1.999, 5.0);
+        Vec3 a = Vec3(size, 0.0, 0.0);
+        Vec3 b = Vec3(0.0, 0.0, size);
+        Quadrilateral top_light = Quadrilateral(center - a * 0.5 + b * 0.5, a, b, material_id);
+        box_objects.push_back(std::move(top_light));
+    }
+    auto box = std::make_unique<Composite>(std::move(box_objects));
+    scene_builder.add_object(std::move(box));
+
+    return scene_builder;
+}
+
 /// @brief A helper method to generate a scene to render a rainbow on a wall using a high-dispersion glass prism
 ///
 /// Scene optimised by Gemini after giving it a rough setup (prism, directional light, and the box around) to make it better for the purpose of a rainbow

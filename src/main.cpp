@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     bool is_running = true;
     SDL_Event event;
 
-    SceneBuilder scene_builder = SceneBuilder::prism_rainbow();
+    SceneBuilder scene_builder = SceneBuilder::metal_spheres();
     /*{
         Diffuse diffuse_material = Diffuse(ColourRGB::fromRGB(255, 255, 255, 255));
         uint32_t material_id = scene_builder.add_material(diffuse_material);

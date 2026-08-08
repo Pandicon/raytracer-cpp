@@ -30,5 +30,6 @@ public:
 
     void flatten_objects_into(std::vector<Hittable> &flat_list);
 
+    static SceneBuilder metal_spheres();
     static SceneBuilder prism_rainbow();
 };

@@ -168,20 +168,19 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                                                   },
                                                   [&](const Metal &metal)
                                                   {
-                                                      /*double n_previous = void_index_of_refraction;
+                                                      double n_previous = void_index_of_refraction;
                                                       if (!indices_of_refraction.empty())
                                                       {
                                                           n_previous = indices_of_refraction.top();
                                                       }
                                                       emitted = metal.emitted(ray);
 
-                                                      std::optional<ScatterRecord> scatter_result = metal.scatter(ray, closest_hit->point, closest_hit->normal, n_previous);
+                                                      std::optional<ScatterRecord> scatter_result = metal.scatter(ray, closest_hit->point, closest_hit->normal, n_previous, lambda);
                                                       if (scatter_result)
                                                       {
-                                                          colour_albedo = scatter_result->colour_albedo;
+                                                          colour_albedo = scatter_result->albedo;
                                                           ray_opt = scatter_result->scattered_ray;
-                                                      }*/
-                                                      throw std::runtime_error("Metals are not implemented yet");
+                                                      }
                                                   },
                                                   [&](const BlackBody &bb)
                                                   {
