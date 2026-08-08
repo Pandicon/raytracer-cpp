@@ -10,6 +10,7 @@
 #include "Scene.hpp"
 
 #include "limits.hpp"
+#include "settings.hpp"
 #include "matching.hpp"
 
 constexpr int MAX_BOUNCES = 10;
@@ -84,7 +85,26 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                 ColourXYZ pixel_accumulator = ColourXYZ(0.0, 0.0, 0.0);
                 for (uint32_t f_i = 0; f_i < frames_per_loop; f_i += 1)
                 {
-                    double lambda = get_random_double(Limits::MIN_LAMBDA_NM, Limits::MAX_LAMBDA_NM);
+                    double lambda;
+                    double ray_weight = 1.0;
+                    if constexpr (Settings::USE_DISCRETE_WAVELENGTHS)
+                    {
+                        constexpr double DISCRETE_WAVELENGTHS[3] = {420.0, 532.0, 650.0};
+                        constexpr double WEIGHTS[3] = {1.500238049, 0.8513813705, 2.248210718};
+
+                        int index = static_cast<int>(get_zero_to_one() * 3.0);
+                        if (index == 3)
+                        {
+                            index = 2;
+                        }
+
+                        lambda = DISCRETE_WAVELENGTHS[index];
+                        ray_weight = WEIGHTS[index];
+                    }
+                    else
+                    {
+                        lambda = get_random_double(Limits::MIN_LAMBDA_NM, Limits::MAX_LAMBDA_NM);
+                    }
                     std::stack<double> indices_of_refraction;
 
                     double r2_x = precomputed_r2_x[f_i];
@@ -232,7 +252,7 @@ void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<u
                             ray_opt = std::nullopt;
                         }
                     }
-                    pixel_accumulator = pixel_accumulator + ColourXYZ::from_lambda_intensity(lambda, final_pixel_intensity, Limits::MAX_LAMBDA_NM - Limits::MIN_LAMBDA_NM);
+                    pixel_accumulator = pixel_accumulator + ColourXYZ::from_lambda_intensity(lambda, final_pixel_intensity * ray_weight, Limits::MAX_LAMBDA_NM - Limits::MIN_LAMBDA_NM);
                 }
                 accumulated_pixels[pixel_index] = accumulated_pixels[pixel_index] + pixel_accumulator;
             }

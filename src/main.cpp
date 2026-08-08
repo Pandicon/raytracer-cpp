@@ -20,13 +20,9 @@
 #include "shapes/Sphere.hpp"
 #include "shapes/Triangle.hpp"
 
-#include "save_to_image.hpp"
+#include "settings.hpp"
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 800;
-constexpr double FRAMES_PER_LOOP = 10.0;
-constexpr std::optional<std::string> FILE_TO_LOAD = std::nullopt;
-constexpr std::optional<unsigned int> THREADS_TO_USE_OVERRIDE = std::nullopt;
+#include "save_to_image.hpp"
 
 std::vector<uint32_t> apply_tonemapping_and_pack(const std::vector<ColourXYZ> &accumulated_image, double frames_accumulated);
 
@@ -37,9 +33,9 @@ int main(int argc, char *argv[])
     {
         num_threads = 2;
     }
-    if (THREADS_TO_USE_OVERRIDE.has_value())
+    if (Settings::THREADS_TO_USE_OVERRIDE.has_value())
     {
-        num_threads = THREADS_TO_USE_OVERRIDE.value();
+        num_threads = Settings::THREADS_TO_USE_OVERRIDE.value();
     }
     std::cout << "Using " << num_threads << " thread(s) for rendering" << std::endl;
 
@@ -49,11 +45,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    SDL_Window *window = SDL_CreateWindow("Raytracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Window *window = SDL_CreateWindow("Raytracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Settings::WIDTH, Settings::HEIGHT, SDL_WINDOW_SHOWN);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+    SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, Settings::WIDTH, Settings::HEIGHT);
 
     bool is_running = true;
     SDL_Event event;
@@ -182,10 +178,10 @@ int main(int argc, char *argv[])
     Scene scene = scene_builder.build();
 
     double frames_accumulated = 0.0;
-    std::vector<ColourXYZ> accumulated_image(WIDTH * HEIGHT, ColourXYZ(0.0, 0.0, 0.0));
-    if (FILE_TO_LOAD.has_value())
+    std::vector<ColourXYZ> accumulated_image(Settings::WIDTH * Settings::HEIGHT, ColourXYZ(0.0, 0.0, 0.0));
+    if (Settings::FILE_TO_LOAD.has_value())
     {
-        load_data(accumulated_image, frames_accumulated, FILE_TO_LOAD.value());
+        load_data(accumulated_image, frames_accumulated, std::string(Settings::FILE_TO_LOAD.value()));
     }
     double last_frame = (double)SDL_GetTicks64();
 
@@ -210,7 +206,7 @@ int main(int argc, char *argv[])
                 {
                     std::vector<uint32_t> accumulated_pixels =
                         apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
-                    save_texture(accumulated_pixels, WIDTH, HEIGHT, std::to_string(std::time(nullptr)));
+                    save_texture(accumulated_pixels, Settings::WIDTH, Settings::HEIGHT, std::to_string(std::time(nullptr)));
                     save_data(accumulated_image, frames_accumulated, std::to_string(std::time(nullptr)));
                     break;
                 }
@@ -221,15 +217,15 @@ int main(int argc, char *argv[])
             }
         }
 
-        frames_accumulated += FRAMES_PER_LOOP;
+        frames_accumulated += Settings::FRAMES_PER_LOOP;
 
-        scene.render(accumulated_image, WIDTH, HEIGHT, num_threads, frames_accumulated, FRAMES_PER_LOOP);
+        scene.render(accumulated_image, Settings::WIDTH, Settings::HEIGHT, num_threads, frames_accumulated, Settings::FRAMES_PER_LOOP);
 
         std::vector<uint32_t> accumulated_pixels = apply_tonemapping_and_pack(accumulated_image, frames_accumulated);
 
-        std::cout << 1000.0 / (this_frame - last_frame) * FRAMES_PER_LOOP << " FPS (average of " << 1000.0 * frames_accumulated / this_frame << ")" << std::endl;
+        std::cout << 1000.0 / (this_frame - last_frame) * Settings::FRAMES_PER_LOOP << " FPS (average of " << 1000.0 * frames_accumulated / this_frame << ")" << std::endl;
 
-        SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), WIDTH * sizeof(uint32_t));
+        SDL_UpdateTexture(texture, nullptr, accumulated_pixels.data(), Settings::WIDTH * sizeof(uint32_t));
 
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, nullptr, nullptr);
