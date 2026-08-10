@@ -12,6 +12,6 @@ namespace Settings
     constexpr int WIDTH = 800;
     constexpr int HEIGHT = 800;
     constexpr double FRAMES_PER_LOOP = 10.0;
-    constexpr std::optional<std::string_view> FILE_TO_LOAD = "1786223751";
+    constexpr std::optional<std::string_view> FILE_TO_LOAD = std::nullopt;
     constexpr std::optional<unsigned int> THREADS_TO_USE_OVERRIDE = std::nullopt;
 }
