@@ -9,6 +9,8 @@
 #include "Hittable.hpp"
 #include "Scene.hpp"
 
+#include "limits.hpp"
+#include "settings.hpp"
 #include "matching.hpp"
 
 constexpr int MAX_BOUNCES = 10;
@@ -19,9 +21,19 @@ constexpr double G = 1.32471795724474602596;
 constexpr double a1 = 1.0 / G;
 constexpr double a2 = 1.0 / (G * G);
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop);
+void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop);
 
-Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction), bvh_(bvh) {}
+Scene::Scene(std::vector<Hittable> objects, std::vector<Material> materials, double void_index_of_refraction, BVH bvh, RGB2Spec *rgb2spec) : objects_(std::move(objects)), materials_(std::move(materials)), void_index_of_refraction_(void_index_of_refraction), bvh_(bvh), rgb2spec_(rgb2spec)
+{
+}
+
+Scene::~Scene()
+{
+    if (rgb2spec_)
+    {
+        rgb2spec_free(rgb2spec_);
+    }
+}
 
 void Scene::add_object(const Hittable &object)
 {
@@ -34,7 +46,7 @@ uint32_t Scene::add_material(const Material &material)
     return materials_.size() - 1;
 }
 
-void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
+void Scene::render(std::vector<ColourXYZ> &accumulated_pixels, uint32_t width, uint32_t height, uint32_t n_threads, double frame_number, double frames_per_loop)
 {
     std::atomic<uint32_t> next_row{0};
     std::vector<std::jthread> threads;
@@ -44,7 +56,7 @@ void Scene::render(std::vector<Colour> &accumulated_pixels, uint32_t width, uint
     }
 }
 
-void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop)
+void run_render_thread(std::vector<ColourXYZ> &accumulated_pixels, std::atomic<uint32_t> &next_row, uint32_t width, uint32_t height, const std::vector<Hittable> &objects, const std::vector<Material> &materials, const BVH &bvh, double void_index_of_refraction, double frame_number, double frames_per_loop)
 {
     std::vector<double> precomputed_r2_x(frames_per_loop);
     std::vector<double> precomputed_r2_y(frames_per_loop);
@@ -70,9 +82,29 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
             for (uint32_t x = 0; x < width; x += 1)
             {
                 uint32_t pixel_index = y * width + x;
-                Colour pixel_accumulator = Colour::black();
+                ColourXYZ pixel_accumulator = ColourXYZ(0.0, 0.0, 0.0);
                 for (uint32_t f_i = 0; f_i < frames_per_loop; f_i += 1)
                 {
+                    double lambda;
+                    double ray_weight = 1.0;
+                    if constexpr (Settings::USE_DISCRETE_WAVELENGTHS)
+                    {
+                        constexpr double DISCRETE_WAVELENGTHS[3] = {420.0, 532.0, 650.0};
+                        constexpr double WEIGHTS[3] = {1.500238049, 0.8513813705, 2.248210718};
+
+                        int index = static_cast<int>(get_zero_to_one() * 3.0);
+                        if (index == 3)
+                        {
+                            index = 2;
+                        }
+
+                        lambda = DISCRETE_WAVELENGTHS[index];
+                        ray_weight = WEIGHTS[index];
+                    }
+                    else
+                    {
+                        lambda = get_random_double(Limits::MIN_LAMBDA_NM, Limits::MAX_LAMBDA_NM);
+                    }
                     std::stack<double> indices_of_refraction;
 
                     double r2_x = precomputed_r2_x[f_i];
@@ -84,8 +116,8 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                     Ray ray = Ray(Vec3(0.0, 0.0, 0.0), Vec3((x_d - w_d / 2.0) / h_d, (height / 2.0 - y_d) / h_d, 1.0).normalise());
                     std::optional<Ray> ray_opt = ray;
                     int bounces = 0;
-                    Colour final_pixel_colour = Colour(0.0, 0.0, 0.0, 1.0); // Needs to be gathered by hitting lights
-                    Colour ray_colour = Colour::white();                    // What is currently being carried around, gets lost at bounces
+                    double final_pixel_intensity = 0.0; // Needs to be gathered by hitting lights
+                    double ray_colour = 1.0;            // What is currently being carried around, gets lost at bounces
                     while (ray_opt && bounces <= MAX_BOUNCES)
                     {
                         Ray ray = *ray_opt;
@@ -111,18 +143,18 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                             const uint32_t hit_material_id = closest_hit->material_id_;
                             const Material &hit_material = materials[hit_material_id];
 
-                            Colour emitted = Colour::black();
-                            Colour colour_albedo = Colour::white();
+                            double emitted = 0.0;
+                            double colour_albedo = 1.0;
                             std::visit(overloaded{[&](const Dielectric &dielectric)
                                                   {
                                                       emitted = dielectric.emitted(ray);
-                                                      colour_albedo = dielectric.colour_contribution(ray);
+                                                      colour_albedo = dielectric.albedo(ray, lambda);
 
                                                       if (!closest_hit->front_face)
                                                       {
                                                           // Leaving the object (but may internally reflect)
                                                           indices_of_refraction.pop(); // Remove the current index of refraction
-                                                          double n_previous = dielectric.index_of_refraction();
+                                                          double n_previous = dielectric.index_of_refraction(lambda);
                                                           double n_next = void_index_of_refraction;
                                                           if (!indices_of_refraction.empty())
                                                           {
@@ -133,7 +165,7 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                                           if (!refracted)
                                                           {
                                                               // We did not actually leave the medium
-                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                              indices_of_refraction.push(dielectric.index_of_refraction(lambda));
                                                           }
                                                       }
                                                       else
@@ -144,13 +176,13 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                                           {
                                                               n_previous = indices_of_refraction.top();
                                                           }
-                                                          double n_next = dielectric.index_of_refraction();
+                                                          double n_next = dielectric.index_of_refraction(lambda);
                                                           bool refracted = true;
                                                           ray_opt = dielectric.scatter(ray, closest_hit->point, closest_hit->normal, n_previous / n_next, refracted);
                                                           if (refracted)
                                                           {
                                                               // We entered the medium
-                                                              indices_of_refraction.push(dielectric.index_of_refraction());
+                                                              indices_of_refraction.push(dielectric.index_of_refraction(lambda));
                                                           }
                                                       }
                                                   },
@@ -163,23 +195,55 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                                                       }
                                                       emitted = metal.emitted(ray);
 
-                                                      std::optional<ScatterRecord> scatter_result = metal.scatter(ray, closest_hit->point, closest_hit->normal, n_previous);
+                                                      std::optional<ScatterRecord> scatter_result = metal.scatter(ray, closest_hit->point, closest_hit->normal, n_previous, lambda);
                                                       if (scatter_result)
                                                       {
-                                                          colour_albedo = scatter_result->colour_albedo;
+                                                          colour_albedo = scatter_result->albedo;
                                                           ray_opt = scatter_result->scattered_ray;
                                                       }
                                                   },
-                                                  [&](const auto &concrete_material)
+                                                  [&](const BlackBody &bb)
                                                   {
-                                                      emitted = concrete_material.emitted(ray);
+                                                      emitted = bb.emitted(ray, lambda);
 
-                                                      colour_albedo = concrete_material.colour_contribution(ray);
+                                                      colour_albedo = bb.albedo(ray);
 
-                                                      ray_opt = concrete_material.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                      ray_opt = bb.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const DirectedEmitter &directed_emitter)
+                                                  {
+                                                      emitted = directed_emitter.emitted(ray, closest_hit->normal, lambda);
+
+                                                      colour_albedo = directed_emitter.albedo(ray);
+
+                                                      ray_opt = directed_emitter.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const Light &light)
+                                                  {
+                                                      emitted = light.emitted(ray, lambda);
+
+                                                      colour_albedo = light.albedo(ray);
+
+                                                      ray_opt = light.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const Diffuse &diffuse)
+                                                  {
+                                                      emitted = diffuse.emitted(ray);
+
+                                                      colour_albedo = diffuse.albedo(ray, lambda);
+
+                                                      ray_opt = diffuse.scatter(ray, closest_hit->point, closest_hit->normal);
+                                                  },
+                                                  [&](const Mirror &mirror)
+                                                  {
+                                                      emitted = mirror.emitted(ray);
+
+                                                      colour_albedo = mirror.albedo(ray, lambda);
+
+                                                      ray_opt = mirror.scatter(ray, closest_hit->point, closest_hit->normal);
                                                   }},
                                        hit_material);
-                            final_pixel_colour = final_pixel_colour + ray_colour * emitted;
+                            final_pixel_intensity = final_pixel_intensity + ray_colour * emitted;
                             ray_colour = ray_colour * colour_albedo;
                             bounces += 1;
                         }
@@ -188,7 +252,7 @@ void run_render_thread(std::vector<Colour> &accumulated_pixels, std::atomic<uint
                             ray_opt = std::nullopt;
                         }
                     }
-                    pixel_accumulator = pixel_accumulator + final_pixel_colour;
+                    pixel_accumulator = pixel_accumulator + ColourXYZ::from_lambda_intensity(lambda, final_pixel_intensity * ray_weight, Limits::MAX_LAMBDA_NM - Limits::MIN_LAMBDA_NM);
                 }
                 accumulated_pixels[pixel_index] = accumulated_pixels[pixel_index] + pixel_accumulator;
             }

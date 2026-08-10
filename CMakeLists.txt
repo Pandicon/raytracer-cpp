@@ -15,8 +15,10 @@ add_executable(
     src/main.cpp
     src/Scene.cpp
     src/SceneBuilder.cpp
+    src/materials/BlackBody.cpp
     src/materials/Dielectric.cpp
     src/materials/Diffuse.cpp
+    src/materials/DirectedEmitter.cpp
     src/materials/Light.cpp
     src/materials/Metal.cpp
     src/materials/Mirror.cpp
@@ -28,6 +30,9 @@ add_executable(
 
 target_include_directories(Raytracer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(Raytracer PRIVATE ${Stb_INCLUDE_DIR})
+
+add_subdirectory(include/external/rgb2spec)
+target_link_libraries(Raytracer PRIVATE rgb2spec)
 
 target_link_libraries(Raytracer 
     PRIVATE 

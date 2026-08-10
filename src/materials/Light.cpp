@@ -1,6 +1,10 @@
 #include "materials/Light.hpp"
 
-Light::Light(Colour colour, double intensity) : colour_(colour), intensity_(intensity) {}
+Light::Light(ColourRGB colour, double intensity, RGB2Spec *rgb2spec) : intensity_(intensity)
+{
+    float rgb[3] = {static_cast<float>(colour.r), static_cast<float>(colour.g), static_cast<float>(colour.b)};
+    rgb2spec_fetch(rgb2spec, rgb, coefficients_);
+}
 
 std::optional<Ray> Light::scatter(const Ray &_ray, const Vec3 &_hit_point, const Vec3 &_normal) const
 {
@@ -8,12 +12,12 @@ std::optional<Ray> Light::scatter(const Ray &_ray, const Vec3 &_hit_point, const
     return std::nullopt;
 }
 
-Colour Light::colour_contribution(const Ray &_ray) const
+double Light::albedo(const Ray &_ray) const
 {
-    return Colour::white();
+    return 1.0;
 };
 
-Colour Light::emitted(const Ray &_ray) const
+double Light::emitted(const Ray &_ray, double lambda) const
 {
-    return colour_ * intensity_;
+    return rgb2spec_eval_precise(coefficients_, lambda) * intensity_;
 };

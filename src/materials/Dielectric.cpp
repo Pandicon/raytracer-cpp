@@ -1,7 +1,16 @@
 #include "materials/Dielectric.hpp"
 #include "RandomUtils.hpp"
 
-Dielectric::Dielectric(Colour colour, double index_of_refraction) : colour_(colour), index_of_refraction_(index_of_refraction) {}
+Dielectric::Dielectric(ColourRGB colour, const std::vector<double> &As, const std::vector<double> &Bs, RGB2Spec *rgb2spec) : num_terms_(static_cast<uint8_t>(std::min(As.size(), MAX_TERMS)))
+{
+    for (size_t i = 0; i < num_terms_; ++i)
+    {
+        As_[i] = As[i];
+        Bs_[i] = Bs[i];
+    }
+    float rgb[3] = {static_cast<float>(colour.r), static_cast<float>(colour.g), static_cast<float>(colour.b)};
+    rgb2spec_fetch(rgb2spec, rgb, coefficients_);
+}
 
 std::optional<Ray> Dielectric::scatter(const Ray &ray, const Vec3 &hit_point, const Vec3 &normal, double n_previous_over_n_next, bool &refracted) const
 {
@@ -35,12 +44,12 @@ std::optional<Ray> Dielectric::scatter(const Ray &ray, const Vec3 &hit_point, co
     return Ray(origin, refracted_direction);
 }
 
-Colour Dielectric::colour_contribution(const Ray &_ray) const
+double Dielectric::albedo(const Ray &_ray, double lambda) const
 {
-    return colour_;
+    return rgb2spec_eval_precise(coefficients_, lambda);
 };
 
-Colour Dielectric::emitted(const Ray &_ray) const
+double Dielectric::emitted(const Ray &_ray) const
 {
-    return Colour::black();
+    return 0.0;
 };
